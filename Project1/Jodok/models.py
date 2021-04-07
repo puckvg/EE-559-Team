@@ -50,8 +50,9 @@ class BaseSimple(BaseLightning):
 
 
 class BaseCombined(BaseLightning):
-    def __init__(self, lr):
+    def __init__(self, lr, weight_aux):
         super().__init__(lr)
+        self.weight_aux = weight_aux
 
     def training_step(self, batch, batch_idx):
         x, y_class, y_target = batch
@@ -59,7 +60,7 @@ class BaseCombined(BaseLightning):
         loss_d1 = self.loss(d1, y_class[:, 0])
         loss_d2 = self.loss(d2, y_class[:, 1])
         loss_target = self.loss(out, y_target)
-        loss = loss_d1 + loss_d2 + loss_target
+        loss = self.weight_aux * (loss_d1 + loss_d2) + loss_target
         return loss
     
     def validation_step(self, batch, batch_idx):
@@ -145,8 +146,8 @@ class ResNetMNIST(BaseSimple):
 
 
 class CombinedNet(BaseCombined):
-    def __init__(self, auxiliary, lr=0.001):
-        super().__init__(lr)
+    def __init__(self, auxiliary, lr=0.001, weight_aux=0.5):
+        super().__init__(lr, weight_aux)
         # define model and loss
         self.auxiliary = auxiliary
         self.loss = nn.CrossEntropyLoss()
@@ -158,9 +159,7 @@ class CombinedNet(BaseCombined):
         x2 = x[:, 1:2, :, :]
 
         d1 = self.auxiliary(x1)
-        #d1 = nn.functional.relu(d1)
         d2 = self.auxiliary(x2)
-        #d2 = nn.functional.relu(d2)
         
         x = torch.cat((d1, d2), 1)
         x = self.linear(x)
