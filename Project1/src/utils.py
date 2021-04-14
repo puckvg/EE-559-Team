@@ -65,3 +65,28 @@ def load_all_data():
         t: train_target     N                   Class to predict ∈ {0, 1}
     """
     return _load_data('all')
+
+def param_count(model):
+    """ Calculates the total number of parameters of the model.
+    Args: 
+        model: Module. Model of which we want to know the number or params
+    
+    Returns:
+        total: Tensor. Total number of parameters
+        trainable: Tensor. Number of trainable parameters
+    """
+    total = sum(p.numel() for p in model.parameters())
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    
+    return total, trainable
+
+
+def print_param_count(model):
+    """ Prints the total number of parameters of the model.
+    Args: 
+        model: Module. Model of which we want to know the number or params
+    """
+    total, trainable = param_count(model)
+    
+    print(f"Total number of parameters:     {total}")
+    print(f"Number of trainable parameters: {trainable}")
