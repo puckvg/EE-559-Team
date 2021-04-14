@@ -48,7 +48,13 @@ class BaseModule(AbstractModule):
 
 class Siamese(BaseModule):
     """ Siamese modules can inherit from Siamese to use the trainer """
-    def __init__(self, lr, weight_aux=0.5):
+    def __init__(self, auxiliary, lr=0.001, weight_aux=0.5):
+        """ 
+        Args:
+            auxiliary: Module. Network that produces the auxiliary loss.
+            lr: float. Learning rate
+            weight_aux: float. The weight for the auxiliary loss. weight_aux=1 means that it has the same weight as the target loss.
+        """
         super().__init__(lr)
         self.weight_aux = weight_aux
         self.auxiliary = auxiliary
