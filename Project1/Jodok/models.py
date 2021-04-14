@@ -133,16 +133,55 @@ class LeNet(BaseSimple):
         return x
 
 
-class ResNetMNIST(BaseSimple):
-    def __init__(self, lr=0.001):
-        super().__init__(lr)
-        # define model and loss
-        self.model = resnet18(num_classes=10, pretrained=False)
-        self.model.conv1 = nn.Conv2d(1, 64, kernel_size=(5, 5), stride=(2, 2), padding=(3, 3), bias=False)
+class ResBlock(nn.Module):
+    def __init__(self, nb_channels, kernel_size, batch_normalization, skip_connections, lr=0.001):
+        super().__init__()
+        self.is_bn = batch_normalization
+        self.is_skip = skip_connections
 
-    @auto_move_data # this decorator automatically handles moving your tensors to GPU if required
+        self.conv1 = nn.Conv2d(nb_channels, nb_channels,
+                               kernel_size = kernel_size,
+                               padding = (kernel_size - 1) // 2)
+
+        self.bn1 = nn.BatchNorm2d(nb_channels)
+
+        self.conv2 = nn.Conv2d(nb_channels, nb_channels,
+                               kernel_size = kernel_size,
+                               padding = (kernel_size - 1) // 2)
+
+        self.bn2 = nn.BatchNorm2d(nb_channels)
+
+    @auto_move_data
     def forward(self, x):
-        return self.model(x)
+        y = self.conv1(x)
+        if self.is_bn: y = self.bn1(y)
+        y = nn.functional.relu(y)
+        y = self.conv2(y)
+        if self.is_bn: y = self.bn2(y)
+        if self.is_skip: y = y + x
+        y = nn.functional.relu(y)
+
+        return y
+
+class ResNet(BaseSimple):
+    def __init__(self, nb_channels, kernel_size, nb_blocks, lr=0.001):
+        super().__init__(lr)
+        self.conv1 = nn.Conv2d(1, nb_channels, kernel_size=1)
+        self.resblocks = nn.Sequential(
+            *(ResBlock(nb_channels, kernel_size, True, True) for _ in range(nb_blocks))
+        )
+        self.avg = nn.AvgPool2d(kernel_size = 12)
+        self.flat = nn.Flatten(start_dim=1)
+        self.fc = nn.Linear(nb_channels, 10)
+
+    @auto_move_data
+    def forward(self, x):
+        x = nn.functional.relu(self.conv1(x))
+        x = self.resblocks(x)
+        x = nn.functional.relu(self.avg(x))
+        x = self.flat(x)
+        x = self.fc(x)
+        return x
 
 
 class CombinedNet(BaseCombined):
@@ -164,3 +203,23 @@ class CombinedNet(BaseCombined):
         x = torch.cat((d1, d2), 1)
         x = self.linear(x)
         return d1, d2, x
+
+class FullyConv(BaseSimple):
+    def __init__(self, lr=0.001):
+        super().__init__(lr)
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=3)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=3)
+        self.conv3 = nn.Conv2d(64, 1, kernel_size=(7, 7), stride=(7, 7))
+        self.flat = nn.Flatten(start_dim=1)
+    
+    @auto_move_data
+    def forward(self, x):
+        x = torch.cat((x[:, 0:1], x[:, 1:2]), dim=2)
+        x = self.conv1(x)
+        x = nn.functional.relu(x)
+        x = self.conv2(x)
+        x = nn.functional.relu(x)
+        x = self.conv3(x)
+        x = nn.functional.relu(x)
+        x = self.flat(x)
+        return x
