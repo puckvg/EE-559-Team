@@ -41,11 +41,13 @@ class Trainer:
                 avg_acc_val = round(sum(acc_val)/len(acc_val), 2)
                 print(f'# Epoch {e+1}/{self.nb_epochs}:\t loss={avg_loss_train}\t loss_val={avg_loss_val}\t acc_val={avg_acc_val}')
 
-    def test(self, model, dl_test):
+    def test(self, model, dl_test, test_verbose=True, return_acc=False):
         """ Test the model on the specified data 
         Args:
             model: Module. Model to train
             dl_test: DataLoader. DataLoader containting the test data
+            test_verbose: bool. Wether the test result should be printed
+            return_acc: bool. Wether to return the test accuracy
         """
 
         loss_test = []
@@ -59,4 +61,7 @@ class Trainer:
 
         avg_loss_test = round(sum(loss_test)/len(loss_test), 2)
         avg_acc_test = round(sum(acc_test)/len(acc_test), 2)
-        print(f'loss_test={avg_loss_test}\t acc_test={avg_acc_test}')
+        if test_verbose:
+            print(f'loss_test={avg_loss_test}\t acc_test={avg_acc_test}')
+        if return_acc:
+            return avg_acc_test

@@ -66,6 +66,7 @@ def load_all_data():
     """
     return _load_data('all')
 
+
 def param_count(model):
     """ Calculates the total number of parameters of the model.
     Args: 
