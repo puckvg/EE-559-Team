@@ -60,7 +60,7 @@ class Siamese(BaseModule):
         super().__init__(lr)
         self.weight_aux = weight_aux
         self.auxiliary = auxiliary
-        self.linear = target
+        self.target = target
 
     def forward(self, x):
         x1 = x[:, 0:1, :, :]
@@ -68,7 +68,7 @@ class Siamese(BaseModule):
 
         d1 = self.auxiliary(x1)
         d2 = self.auxiliary(x2)
-        
+                
         x = torch.cat((d1, d2), 1)
         x = self.target(x)
         return d1, d2, x
@@ -176,6 +176,7 @@ class LinearAlpha(BaseModule):
         self.fc4 = nn.Linear(50, 20)
         self.bn4 = nn.BatchNorm1d(num_features=20)
         self.fc5 = nn.Linear(20, 10)
+        self.dropout = nn.Dropout(p=0.5)
         
     def forward(self, x):
         x = self.flat(x)
@@ -184,29 +185,30 @@ class LinearAlpha(BaseModule):
         x = self.fc1(x)
         x = self.bn1(x)
         x = nn.functional.relu(x)
-        x = nn.Dropout(x)
+        x = self.dropout(x)
         
         # Layer 2
         x = self.fc2(x)
         x = self.bn2(x)
         x = nn.functional.relu(x)
-        x = nn.Dropout(x)
+        x = self.dropout(x)
         
         # Layer 3
-        for _ in range(1):
+        for _ in range(2):
             x = self.fc3(x)
             x = self.bn3(x)
             x = nn.functional.relu(x)
-            x = nn.Dropout(x)
+            x = self.dropout(x)
         
         # Layer 4
         x = self.fc4(x)
         x = self.bn4(x)
         x = nn.functional.relu(x)
-        x = nn.Dropout(x)
+        x = self.dropout(x)
         
         # Layer 5
         x = self.fc5(x)
+        return x
     
         
 class LinearBeta(BaseModule):
@@ -218,21 +220,24 @@ class LinearBeta(BaseModule):
         self.fc2 = nn.Linear(10, 10)
         self.bn2 = nn.BatchNorm1d(num_features=10)
         self.fc3 = nn.Linear(10, 2)
+        self.dropout = nn.Dropout(p=0.5)
         
     def forward(self, x):
         # First layer
         x = self.fc1(x)
         x = self.bn1(x)
         x = nn.functional.relu(x)
-        x = nn.Dropout(x)
+        x = self.dropout(x)
         
         # Second layer
-        for _ in range(2):
+        for _ in range(3):
             x = self.fc2(x)
             x = self.bn2(x)
             x = nn.functional.relu(x)
-            x = Dropout(x)
+            x = self.dropout(x)
         
         # Thrird layer
         x = self.fc3(x)
+        
+        return x
         
