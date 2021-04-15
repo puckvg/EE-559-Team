@@ -116,3 +116,44 @@ class LeNet(BaseModule):
         x = self.fc2(x)
 
         return x
+    
+
+class LinearBaseline(BaseModule):
+    """ Simple linear model using nothing but target loss """
+    def __init__(self, lr=0.001):
+        super().__init__(lr)
+        self.flat = nn.Flatten(start_dim=1)
+        self.fc1 = nn.Linear(392, 150)
+        self.fc2 = nn.Linear(150, 50)
+        self.fc3 = nn.Linear(50, 50)
+        self.fc4 = nn.Linear(50, 20)
+        self.fc5 = nn.Linear(20, 20)
+        self.fc6 = nn.Linear(20, 10)
+        self.fc7 = nn.Linear(10, 2)
+        
+    def forward(self, x):
+        x = self.flat(x)
+        
+        x = self.fc1(x)
+        x = nn.functional.relu(x)
+        
+        x = self.fc2(x)
+        x = nn.functional.relu(x)
+        
+        for _ in range(1):
+            x = self.fc3(x)
+            x = nn.functional.relu(x)
+        
+        x = self.fc4(x)
+        x = nn.functional.relu(x)
+        
+        for _ in range(2):
+            x = self.fc5(x)
+            x = nn.functional.relu(x)
+
+        x = self.fc6(x)
+        x = nn.functional.relu(x)
+        
+        x = self.fc7(x)
+        
+        return x 
