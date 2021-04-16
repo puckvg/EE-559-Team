@@ -52,7 +52,7 @@ def _load_data(data_id, batch_size=32, split_lengths=[800, 200], nb_workers=4, n
         dl_test_all = DataLoader(ds_test_all, batch_size=batch_size, shuffle=False, num_workers=nb_workers)
         return dl_train_all, dl_val_all, dl_test_all
 
-def load_class_data(normalize=False):
+def load_class_data(normalize=True):
     """ Loads a dataloader constisting of input images and the respective digit classification.
     DataLoader:
         x: train_input      N × 2 × 14 × 14     Images
@@ -60,7 +60,7 @@ def load_class_data(normalize=False):
     """
     return _load_data('class', normalize=normalize)
 
-def load_target_data(normalize=False):
+def load_target_data(normalize=True):
     """ Loads a dataloader constisting of input images and the respective is larger classification.
     DataLoader:
         x: train_input      N × 2 × 14 × 14     Images
@@ -68,7 +68,7 @@ def load_target_data(normalize=False):
     """
     return _load_data('target', normalize=normalize)
 
-def load_all_data(normalize=False):
+def load_all_data(normalize=True):
     """ Loads a dataloader constisting of input images and the respective is larger classification.
     DataLoader:
         x: train_input      N × 2 × 14 × 14     Images
