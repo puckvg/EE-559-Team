@@ -56,6 +56,7 @@ class Siamese(BaseModule):
             target: Module. Network that produces the target loss (starting from auxiliary layer)
             lr: float. Learning rate
             weight_aux: float. The weight for the auxiliary loss. weight_aux=1 means that it has the same weight as the target loss.
+                        if weight_aux = 0, this is equivalent to just using the target loss 
         """
         super().__init__(lr)
         self.weight_aux = weight_aux
