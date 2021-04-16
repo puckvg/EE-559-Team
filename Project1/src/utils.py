@@ -2,9 +2,20 @@ from src.dlc_practical_prologue import generate_pair_sets
 import torch
 from torch.utils.data import DataLoader, TensorDataset, random_split
 
-def _load_data(data_id, batch_size=32, split_lengths=[800, 200], nb_workers=4):
+def normalize_input(train_input, test_input):
+    mean = torch.mean(train_input)
+    std = torch.std(train_input)
+    train_input -= mean 
+    train_input /= std
+    test_input -= mean 
+    test_input /= std
+    return train_input, test_input
+
+def _load_data(data_id, batch_size=32, split_lengths=[800, 200], nb_workers=4, normalize=True):
     # Load data
     train_input, train_target, train_classes, test_input, test_target, test_classes = generate_pair_sets(nb=1000)
+    if normalize: 
+        train_input, test_input = normalize_input(train_input, test_input)
 
     if data_id == 'class':
         # Prepare dataloader with class variable (Used to test auxiliary networks)
@@ -41,30 +52,30 @@ def _load_data(data_id, batch_size=32, split_lengths=[800, 200], nb_workers=4):
         dl_test_all = DataLoader(ds_test_all, batch_size=batch_size, shuffle=False, num_workers=nb_workers)
         return dl_train_all, dl_val_all, dl_test_all
 
-def load_class_data():
+def load_class_data(normalize=False):
     """ Loads a dataloader constisting of input images and the respective digit classification.
     DataLoader:
         x: train_input      N × 2 × 14 × 14     Images
         y: train_classes    N                   Classes of the two digits ∈ {0,...,9}
     """
-    return _load_data('class')
+    return _load_data('class', normalize=normalize)
 
-def load_target_data():
+def load_target_data(normalize=False):
     """ Loads a dataloader constisting of input images and the respective is larger classification.
     DataLoader:
         x: train_input      N × 2 × 14 × 14     Images
         y: train_classes    N                   Class to predict ∈ {0, 1}
     """
-    return _load_data('target')
+    return _load_data('target', normalize=normalize)
 
-def load_all_data():
+def load_all_data(normalize=False):
     """ Loads a dataloader constisting of input images and the respective is larger classification.
     DataLoader:
         x: train_input      N × 2 × 14 × 14     Images
         c: train_classes    N                   Classes of the two digits ∈ {0,...,9}
         t: train_target     N                   Class to predict ∈ {0, 1}
     """
-    return _load_data('all')
+    return _load_data('all', normalize=normalize)
 
 
 def param_count(model):
