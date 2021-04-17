@@ -1,11 +1,7 @@
-import pytorch_lightning as pl
-from pytorch_lightning.core.decorators import auto_move_data
-from torchvision.models import resnet18, googlenet
-from pytorch_lightning.metrics.functional import accuracy
 from torch import nn
 import torch
 
-class BaseLightning(pl.LightningModule):
+class BaseModule(nn.Module):
     def __init__(self, lr):
         super().__init__()
         self.lr = lr
@@ -26,8 +22,11 @@ class BaseLightning(pl.LightningModule):
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
 
+    def accuracy(self, y_, y):
+        return (y_.flatten() == y.flatten()).sum().item() / y_.flatten().size(0) * 100
 
-class BaseSimple(BaseLightning):
+
+class BaseSimple(BaseModule):
     def __init__(self, lr):
         super().__init__(lr)
     
@@ -42,14 +41,11 @@ class BaseSimple(BaseLightning):
         logits = self(x)
         loss = self.loss(logits, y)
         preds = torch.argmax(logits, dim=1)
-        acc = accuracy(preds, y)
-        # Calling self.log will surface up scalars for you in TensorBoard
-        self.log('val_loss', loss, prog_bar=True)
-        self.log('val_acc', acc, prog_bar=True)
-        return loss
+        acc = self.accuracy(preds, y)
+        return loss, acc
 
 
-class BaseCombined(BaseLightning):
+class BaseCombined(BaseModule):
     def __init__(self, lr, weight_aux):
         super().__init__(lr)
         self.weight_aux = weight_aux
@@ -68,11 +64,8 @@ class BaseCombined(BaseLightning):
         _, _, out = self(x)
         loss = self.loss(out, y)
         preds = torch.argmax(out, dim=1)
-        acc = accuracy(preds, y)
-        # Calling self.log will surface up scalars for you in TensorBoard
-        self.log('val_loss', loss, prog_bar=True)
-        self.log('val_acc', acc, prog_bar=True)
-        return loss
+        acc = self.accuracy(preds, y)
+        return loss, acc
 
 
 class Baseline(BaseSimple):
@@ -84,7 +77,6 @@ class Baseline(BaseSimple):
         self.fc1 = nn.Linear(256, 100)
         self.fc2 = nn.Linear(100, 2)
 
-    @auto_move_data
     def forward(self, x):
         x = self.conv1(x)
         x = nn.functional.max_pool2d(x, kernel_size=2, stride=2)
@@ -113,7 +105,6 @@ class LeNet(BaseSimple):
         self.fc1 = nn.Linear(256, 200)
         self.fc2 = nn.Linear(200, 10)
 
-    @auto_move_data
     def forward(self, x):
         x = self.conv1(x)
         x = nn.functional.max_pool2d(x, kernel_size=2, stride=2)
@@ -151,7 +142,6 @@ class ResBlock(nn.Module):
 
         self.bn2 = nn.BatchNorm2d(nb_channels)
 
-    @auto_move_data
     def forward(self, x):
         y = self.conv1(x)
         if self.is_bn: y = self.bn1(y)
@@ -174,7 +164,6 @@ class ResNet(BaseSimple):
         self.flat = nn.Flatten(start_dim=1)
         self.fc = nn.Linear(nb_channels, 10)
 
-    @auto_move_data
     def forward(self, x):
         x = nn.functional.relu(self.conv1(x))
         x = self.resblocks(x)
@@ -192,7 +181,6 @@ class CombinedNet(BaseCombined):
         self.loss = nn.CrossEntropyLoss()
         self.linear = nn.Linear(20, 2)
 
-    @auto_move_data
     def forward(self, x):
         x1 = x[:, 0:1, :, :]
         x2 = x[:, 1:2, :, :]
@@ -212,7 +200,6 @@ class FullyConv(BaseSimple):
         self.conv3 = nn.Conv2d(64, 1, kernel_size=(7, 7), stride=(7, 7))
         self.flat = nn.Flatten(start_dim=1)
     
-    @auto_move_data
     def forward(self, x):
         x = torch.cat((x[:, 0:1], x[:, 1:2]), dim=2)
         x = self.conv1(x)

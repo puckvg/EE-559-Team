@@ -1,4 +1,5 @@
 import torch
+from torch.utils.tensorboard import SummaryWriter
 
 class Trainer:
     def __init__(self, nb_epochs):
@@ -13,6 +14,10 @@ class Trainer:
             dl_val: DataLoader. DataLoader containting the validation data
 
         """
+        tb = SummaryWriter()
+        images = next(iter(dl_train))
+        tb.add_graph(model, images[0])
+        
         optimizer = model.configure_optimizers()
         for e in range(self.nb_epochs):
             loss_train = []
@@ -35,7 +40,19 @@ class Trainer:
             avg_loss_train = round(sum(loss_train)/len(loss_train), 2)
             avg_loss_val = round(sum(loss_val)/len(loss_val), 2)
             avg_acc_val = round(sum(acc_val)/len(acc_val), 2)
+
+            # Write to tensor board
+            tb.add_scalar("Training loss", avg_loss_train, e)
+            tb.add_scalar("Training loss", avg_loss_val, e)
+            tb.add_scalar("Accuracy", avg_acc_val, e)
+
+            for name, weight in model.named_parameters():
+                tb.add_histogram(name,weight, e)
+                tb.add_histogram(f'{name}.grad',weight.grad, e)
+
+
             print(f'# Epoch {e+1}/{self.nb_epochs}:\t loss={avg_loss_train}\t loss_val={avg_loss_val}\t acc_val={avg_acc_val}')
+            tb.close()
 
     def test(self, model, dl_test):
         """ Test the model on the specified data 
