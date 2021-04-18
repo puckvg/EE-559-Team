@@ -16,8 +16,8 @@ class Trainer:
 
         """
         tb = SummaryWriter()
-        images = next(iter(dl_train))
-        tb.add_graph(model, images[0])
+        #images = next(iter(dl_train))
+        #tb.add_graph(model, images[0])
         
         self.verbose = verbose
         

@@ -71,6 +71,7 @@ class Siamese(BaseModule):
         d2 = self.auxiliary(x2)
                 
         x = torch.cat((d1, d2), 1)
+        x = nn.functional.softmax(x)
         x = self.target(x)
         return d1, d2, x
 
@@ -242,3 +243,44 @@ class LinearBeta(BaseModule):
         
         return x
         
+
+class TailLinear(BaseModule):
+    def __init__(self, lr=0.001, label_encoded=False):
+        """ 
+        Example:
+            Use label_encoded=True for class labels in [0, 9]
+            Use label_encoded=False for one hot encoded labels
+            Use label_encoded=False when network used as target network in siamese network
+        """
+        super().__init__(lr)
+        self.fc1 = nn.Linear(20, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 2)
+        self.flat = nn.Flatten(start_dim=1)
+        self.label_encoded = label_encoded
+
+    def forward(self, x):
+        if self.label_encoded:
+            # one hot encode class labels
+            x = nn.functional.one_hot(x).float()
+            x = self.flat(x)
+        x = self.fc1(x)
+        x = nn.functional.relu(x)
+        x = self.fc2(x)
+        x = nn.functional.relu(x)
+        x = self.fc3(x)
+        return x
+
+    def training_step(self, batch, batch_idx):
+        _, x, y = batch
+        out = self(x)
+        loss = self.loss(out, y)
+        return loss
+    
+    def validation_step(self, batch, batch_idx):
+        _, x, y = batch
+        out = self(x)
+        loss = self.loss(out, y)
+        preds = torch.argmax(out, dim=1)
+        acc = self.accuracy(preds, y)
+        return loss, acc
