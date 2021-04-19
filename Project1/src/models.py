@@ -90,14 +90,15 @@ class Siamese(BaseModule):
     def training_step(self, batch, batch_idx):
         x, y_class, y_target = batch
         d1, d2, out = self(x)
-        preds = torch.argmax(out, dim=1)
         loss_d1 = self.loss(d1, y_class[:, 0])
         loss_d2 = self.loss(d2, y_class[:, 1])
 
         if self.target: 
+            preds = torch.argmax(out, dim=1)
             loss_target = self.loss(out, y_target)
             loss = self.weight_aux * (loss_d1 + loss_d2) + loss_target
         else:
+            preds = out 
             loss = (loss_d1 + loss_d2) / 2 
 
         acc = self.accuracy(preds, y_target)
@@ -287,7 +288,7 @@ class TailLinear(BaseModule):
     def forward(self, x):
         if self.label_encoded:
             # one hot encode class labels
-            x = nn.functional.one_hot(x).float()
+            x = nn.functional.one_hot(x, num_classes=10).float()
             x = self.flat(x)
         x = self.fc1(x)
         x = nn.functional.relu(x)
@@ -311,4 +312,54 @@ class TailLinear(BaseModule):
         preds = torch.argmax(out, dim=1)
         acc = self.accuracy(preds, y)
         return loss, acc
+
+class ResBlock(nn.Module):
+    def __init__(self, nb_channels, kernel_size, batch_normalization, skip_connections, bottleneck=16, lr=0.001):
+        super().__init__()
+        self.is_bn = batch_normalization
+        self.is_skip = skip_connections
+
+        self.conv0 = nn.Conv2d(nb_channels, bottleneck, kernel_size=1)
+
+        self.conv1 = nn.Conv2d(bottleneck, bottleneck,
+                               kernel_size = kernel_size,
+                               padding = (kernel_size - 1) // 2)
+
+        self.bn1 = nn.BatchNorm2d(bottleneck)
+
+        self.conv2 = nn.Conv2d(bottleneck, nb_channels, kernel_size=1)
+
+        self.bn2 = nn.BatchNorm2d(nb_channels)
+
+    def forward(self, x):
+        y = self.conv0(x)
+        y = self.conv1(y)
+        if self.is_bn: y = self.bn1(y)
+        y = nn.functional.relu(y)
+        y = self.conv2(y)
+        if self.is_bn: y = self.bn2(y)
+        y = nn.functional.relu(y)
+        if self.is_skip: y = y + x
+        y = nn.functional.relu(y)
+
+        return y
+
+class Resnet(BaseModule):
+    def __init__(self, nb_blocks, nb_channels=128, lr=0.001):
+        super().__init__(lr)
+        self.conv1 = nn.Conv2d(1, nb_channels, kernel_size=1)
+        self.resblocks = nn.Sequential(
+            *(ResBlock(nb_channels, 5, True, True) for _ in range(nb_blocks))
+        )
+        self.avg = nn.AvgPool2d(kernel_size = 12)
+        self.flat = nn.Flatten(start_dim=1)
+        self.fc = nn.Linear(nb_channels, 10)
+
+    def forward(self, x):
+        x = nn.functional.relu(self.conv1(x))
+        x = self.resblocks(x)
+        x = nn.functional.relu(self.avg(x))
+        x = self.flat(x)
+        x = self.fc(x)
+        return x
 
