@@ -90,14 +90,15 @@ class Siamese(BaseModule):
     def training_step(self, batch, batch_idx):
         x, y_class, y_target = batch
         d1, d2, out = self(x)
-        preds = torch.argmax(out, dim=1)
         loss_d1 = self.loss(d1, y_class[:, 0])
         loss_d2 = self.loss(d2, y_class[:, 1])
 
         if self.target: 
+            preds = torch.argmax(out, dim=1)
             loss_target = self.loss(out, y_target)
             loss = self.weight_aux * (loss_d1 + loss_d2) + loss_target
         else:
+            preds = out 
             loss = (loss_d1 + loss_d2) / 2 
 
         acc = self.accuracy(preds, y_target)
