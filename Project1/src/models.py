@@ -113,7 +113,6 @@ class Siamese(BaseModule):
         acc = self.accuracy(preds, y_target)
         return loss, acc
 
-
 class LeNet(BaseModule):
     """ LeNet-ish implementation of digit classifier """
     def __init__(self, lr=0.001):
@@ -290,6 +289,33 @@ class TailLinear(BaseModule):
         x = self.fc2(x)
         x = nn.functional.relu(x)
         x = self.fc3(x)
+        return x
+
+    def training_step(self, batch, batch_idx):
+        _, x, y = batch
+        out = self(x)
+        loss = self.loss(out, y)
+        return loss
+    
+    def validation_step(self, batch, batch_idx):
+        _, x, y = batch
+        out = self(x)
+        loss = self.loss(out, y)
+        preds = torch.argmax(out, dim=1)
+        acc = self.accuracy(preds, y)
+        return loss, acc
+
+class SmallTailLinear(BaseModule):
+    def __init__(self, lr=0.001, label_encoded=False):
+        super().__init__(lr)
+        self.fc1 = nn.Linear(20, 32)
+        self.fc2 = nn.Linear(32, 2)
+        self.flat = nn.Flatten(start_dim=1)
+
+    def forward(self, x): 
+        x = self.fc1(x)
+        x = nn.functional.relu(x)
+        x = self.fc2(x)
         return x
 
     def training_step(self, batch, batch_idx):
