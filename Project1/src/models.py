@@ -76,7 +76,7 @@ class Siamese(BaseModule):
         if self.target:
             x = torch.cat((d1, d2), 1)
             if self.softmax:
-                x = nn.functional.softmax(x)
+                x = nn.functional.softmax(x, dim=1)
             x = self.target(x)
         else: 
             p_d1 = torch.argmax(d1, dim=1)
