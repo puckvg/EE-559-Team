@@ -36,7 +36,9 @@ class BaseModule(AbstractModule):
         x, y = batch
         logits = self(x)
         loss = self.loss(logits, y)
-        return loss
+        preds = torch.argmax(logits, dim=1)
+        acc = self.accuracy(preds, y)
+        return loss, acc
     
     def validation_step(self, batch, batch_idx):
         x, y = batch
@@ -88,6 +90,7 @@ class Siamese(BaseModule):
     def training_step(self, batch, batch_idx):
         x, y_class, y_target = batch
         d1, d2, out = self(x)
+        preds = torch.argmax(out, dim=1)
         loss_d1 = self.loss(d1, y_class[:, 0])
         loss_d2 = self.loss(d2, y_class[:, 1])
 
@@ -96,7 +99,9 @@ class Siamese(BaseModule):
             loss = self.weight_aux * (loss_d1 + loss_d2) + loss_target
         else:
             loss = (loss_d1 + loss_d2) / 2 
-        return loss
+
+        acc = self.accuracy(preds, y_target)
+        return loss, acc
     
     def validation_step(self, batch, batch_idx):
         x, y_class, y_target = batch
@@ -295,7 +300,9 @@ class TailLinear(BaseModule):
         _, x, y = batch
         out = self(x)
         loss = self.loss(out, y)
-        return loss
+        preds = torch.argmax(out, dim=1)
+        acc = self.accuracy(preds, y)
+        return loss, acc
     
     def validation_step(self, batch, batch_idx):
         _, x, y = batch
@@ -305,29 +312,3 @@ class TailLinear(BaseModule):
         acc = self.accuracy(preds, y)
         return loss, acc
 
-class SmallTailLinear(BaseModule):
-    def __init__(self, lr=0.001, label_encoded=False):
-        super().__init__(lr)
-        self.fc1 = nn.Linear(20, 32)
-        self.fc2 = nn.Linear(32, 2)
-        self.flat = nn.Flatten(start_dim=1)
-
-    def forward(self, x): 
-        x = self.fc1(x)
-        x = nn.functional.relu(x)
-        x = self.fc2(x)
-        return x
-
-    def training_step(self, batch, batch_idx):
-        _, x, y = batch
-        out = self(x)
-        loss = self.loss(out, y)
-        return loss
-    
-    def validation_step(self, batch, batch_idx):
-        _, x, y = batch
-        out = self(x)
-        loss = self.loss(out, y)
-        preds = torch.argmax(out, dim=1)
-        acc = self.accuracy(preds, y)
-        return loss, acc
