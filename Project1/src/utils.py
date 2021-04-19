@@ -1,6 +1,7 @@
 from src.dlc_practical_prologue import generate_pair_sets
 import torch
 from torch.utils.data import DataLoader, TensorDataset, random_split
+import matplotlib.pyplot as plt
 
 def normalize_input(train_input, test_input):
     mean = torch.mean(train_input)
@@ -102,3 +103,27 @@ def print_param_count(model):
     
     print(f"Total number of parameters:     {total}")
     print(f"Number of trainable parameters: {trainable}")
+    return 
+
+
+def plot_training_epochs(nb_epochs, train_losses, train_accuracies, 
+                         validation_accuracies, y_label_left="accuracy",
+                         y_label_right="cross entropy loss", savefig=None):
+    """ left plot train/val accuracy against epochs, right plot train loss 
+    against epochs """
+    fig, axes = plt.subplots(nrows=1, ncols=2)
+    axes[0].set_xlabel('epochs')
+    axes[1].set_xlabel('epochs')
+    axes[0].set_ylabel(y_label_left)
+    axes[1].set_ylabel(y_label_right)
+    axes[1].plot(list(range(nb_epochs)), train_losses, label="train", color="red")
+    axes[0].plot(list(range(nb_epochs)), train_accuracies, label="train", color="red")
+    axes[0].plot(list(range(nb_epochs)), validation_accuracies, label="validation", 
+                color="blue")
+    axes[0].legend(loc="upper right")
+    axes[1].legend(loc="upper right")
+    plt.tight_layout()
+
+    if savefig:
+        plt.savefig(savefig, dpi=300)
+    return plt 
