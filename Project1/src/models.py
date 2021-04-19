@@ -48,12 +48,14 @@ class BaseModule(AbstractModule):
 
 class Siamese(BaseModule):
     """ Siamese modules can inherit from Siamese to use the trainer """
-    def __init__(self, auxiliary, target=nn.Linear(20, 2), lr=0.001, weight_aux=0.5):
+    def __init__(self, auxiliary, target=nn.Linear(20, 2), 
+                 softmax=True, lr=0.001, weight_aux=0.5):
         """ 
         Args:
             auxiliary: Module. Network that produces the auxiliary loss.
             target: Module. Network that produces the target loss (starting from auxiliary layer)
                     for direct digit prediction + arithmetic comparison set target=None
+            softmax: Boolean. Whether or not to use the softmax. 
             lr: float. Learning rate
             weight_aux: float. The weight for the auxiliary loss. weight_aux=1 means that it has the same weight as the target loss.
                         if weight_aux = 0, this is equivalent to just using the target loss 
@@ -62,6 +64,7 @@ class Siamese(BaseModule):
         self.weight_aux = weight_aux
         self.auxiliary = auxiliary
         self.target = target
+        self.softmax = softmax
 
     def forward(self, x):
         x1 = x[:, 0:1, :, :]
@@ -72,7 +75,8 @@ class Siamese(BaseModule):
                 
         if self.target:
             x = torch.cat((d1, d2), 1)
-            x = nn.functional.softmax(x)
+            if self.softmax:
+                x = nn.functional.softmax(x)
             x = self.target(x)
         else: 
             p_d1 = torch.argmax(d1, dim=1)
