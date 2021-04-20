@@ -20,7 +20,7 @@ class Trainer:
         #tb.add_graph(model, images[0])
         
         self.verbose = verbose
-        
+
         optimizer = model.configure_optimizers()
         train_loss_epochs = []
         train_acc_epochs = []
@@ -35,6 +35,7 @@ class Trainer:
                 loss, acc = model.training_step(batch, batch_idx)
                 loss.backward()
                 optimizer.step()
+
                 loss_train.append(loss.item())
                 acc_train.append(acc)
 
@@ -62,9 +63,9 @@ class Trainer:
                 tb.add_scalar("Training loss", avg_loss_val, e)
                 tb.add_scalar("Accuracy", avg_acc_val, e)
 
-                for name, weight in model.named_parameters():
-                    tb.add_histogram(name,weight, e)
-                    tb.add_histogram(f'{name}.grad',weight.grad, e)
+                #for name, weight in model.named_parameters():
+                #    tb.add_histogram(name,weight, e)
+                #    tb.add_histogram(f'{name}.grad',weight.grad, e)
 
             tb.close()
 

@@ -1,5 +1,5 @@
 from torch import nn
-import torch
+import torch, random
 from torch.nn.modules.dropout import Dropout
 
 class AbstractModule(nn.Module):
@@ -96,7 +96,9 @@ class Siamese(BaseModule):
         if self.target: 
             preds = torch.argmax(out, dim=1)
             loss_target = self.loss(out, y_target)
-            loss = self.weight_aux * (loss_d1 + loss_d2) + loss_target
+            loss_digit = (loss_d1 + loss_d2) / 2
+            decision = random.randint(0, 1)
+            loss = [loss_target, loss_digit][decision]
         else:
             preds = out 
             loss = (loss_d1 + loss_d2) / 2 
