@@ -2,10 +2,16 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 
 class Trainer:
-    def __init__(self, nb_epochs, verbose=True):
-        """ Create a trainer by specifying the number of epochs to train """
+    def __init__(self, nb_epochs, run, verbose=True):
+        """ Create a trainer by specifying the number of epochs to train 
+        Args:
+            nb_epochs: int.
+            run: string. Title of the run to appear in tensorboard.
+        """
         self.nb_epochs = nb_epochs
         self.verbose = verbose
+        #self.run = f'runs/{run}'
+        self.tb = SummaryWriter(f'runs/{run}')
     
     def fit(self, model, dl_train, dl_val, verbose=True):
         """ Train the model on the specified data and print the training and validation loss and accuracy.
@@ -15,7 +21,7 @@ class Trainer:
             dl_val: DataLoader. DataLoader containting the validation data
 
         """
-        tb = SummaryWriter()
+        #tb = SummaryWriter(self.run)
         #images = next(iter(dl_train))
         #tb.add_graph(model, images[0])
         
@@ -59,15 +65,15 @@ class Trainer:
                 print(f'# Epoch {e+1}/{self.nb_epochs}:\t loss={avg_loss_train}\t loss_val={avg_loss_val}\t acc_val={avg_acc_val}')
 
                 # Write to tensor board
-                tb.add_scalar("Training loss", avg_loss_train, e)
-                tb.add_scalar("Training loss", avg_loss_val, e)
-                tb.add_scalar("Accuracy", avg_acc_val, e)
+                self.tb.add_scalar("Training loss", avg_loss_train, e)
+                self.tb.add_scalar("Training loss", avg_loss_val, e)
+                self.tb.add_scalar("Accuracy", avg_acc_val, e)
 
                 #for name, weight in model.named_parameters():
                 #    tb.add_histogram(name,weight, e)
                 #    tb.add_histogram(f'{name}.grad',weight.grad, e)
 
-            tb.close()
+            self.tb.close()
 
         if self.verbose:
             return train_loss_epochs, train_acc_epochs, val_acc_epochs 

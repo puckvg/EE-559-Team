@@ -50,7 +50,7 @@ class BaseModule(AbstractModule):
 
 class Siamese(BaseModule):
     """ Siamese modules can inherit from Siamese to use the trainer """
-    def __init__(self, auxiliary, target=nn.Linear(20, 2), strategy='sum',
+    def __init__(self, auxiliary, target=nn.Linear(20, 2), strategy='random',
                  softmax=True, lr=0.001, weight_aux=0.5):
         """ 
         Args:
@@ -111,6 +111,8 @@ class Siamese(BaseModule):
                     loss = loss_digit
             elif self.strategy == 'sum':
                 loss = self.weight_aux * loss_digit + loss_target
+            else:
+                raise ValueError(f'Unknown strategy: {strategy}')
         else:
             preds = out 
             loss = (loss_d1 + loss_d2) / 2 
