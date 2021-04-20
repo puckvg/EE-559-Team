@@ -74,11 +74,13 @@ class Siamese(BaseModule):
 
         d1 = self.auxiliary(x1)
         d2 = self.auxiliary(x2)
+
+        if self.softmax:
+            d1 = nn.functional.softmax(d1, dim=1)
+            d2 = nn.functional.softmax(d2, dim=1)
                 
         if self.target:
-            x = torch.cat((d1, d2), 1)
-            if self.softmax:
-                x = nn.functional.softmax(x, dim=1)
+            x = torch.cat((d1.argmax(dim=1).view(-1, 1), d2.argmax(dim=1).view(-1, 1)), 1)
             x = self.target(x)
         else: 
             p_d1 = torch.argmax(d1, dim=1)
@@ -278,7 +280,7 @@ class LinearBeta(BaseModule):
         
 
 class TailLinear(BaseModule):
-    def __init__(self, lr=0.001, label_encoded=False):
+    def __init__(self, lr=0.001, label_encoded=True):
         """ 
         Example:
             Use label_encoded=True for class labels in [0, 9]
