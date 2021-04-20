@@ -370,3 +370,39 @@ class Resnet(BaseModule):
         x = self.fc(x)
         return x
 
+class SequencePretrained(BaseModule):
+    def __init__(self, auxiliary, target, softmax=True, lr=0.001):
+        super().__init__(lr)
+        self.auxiliary = auxiliary
+        self.target = target
+        self.softmax = softmax
+        
+    def forward(self, x):
+        x1 = x[:, 0:1, :, :]
+        x2 = x[:, 1:2, :, :]
+
+        d1 = self.auxiliary(x1)
+        d2 = self.auxiliary(x2)
+        d1 = d1.argmax(dim=1).view(-1, 1)
+        d2 = d2.argmax(dim=1).view(-1, 1)
+                
+        x = torch.cat((d1, d2), 1)
+        x = self.target(x)
+        
+        return x
+
+    def validation_step(self, batch, batch_idx):
+        x, _, y_target = batch
+        out = self(x)
+
+        loss = self.loss(out, y_target)
+        preds = torch.argmax(out, dim=1)
+
+        acc = self.accuracy(preds, y_target)
+        return loss, acc
+
+    def training_step(self, batch, batch_idx):
+        raise NotImplementedError
+
+    
+
