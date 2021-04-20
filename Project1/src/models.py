@@ -98,7 +98,12 @@ class Siamese(BaseModule):
             loss_target = self.loss(out, y_target)
             loss_digit = (loss_d1 + loss_d2) / 2
             decision = random.randint(0, 1)
-            loss = [loss_target, loss_digit][decision]
+            if decision:
+                loss = loss_target
+
+            else:
+                loss = loss_digit
+
         else:
             preds = out 
             loss = (loss_d1 + loss_d2) / 2 
