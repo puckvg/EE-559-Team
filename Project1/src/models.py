@@ -50,7 +50,7 @@ class BaseModule(AbstractModule):
 
 class Siamese(BaseModule):
     """ Siamese modules can inherit from Siamese to use the trainer """
-    def __init__(self, auxiliary, target=nn.Linear(20, 2), 
+    def __init__(self, auxiliary, target=nn.Linear(20, 2), strategy='sum',
                  softmax=True, lr=0.001, weight_aux=0.5):
         """ 
         Args:
@@ -60,13 +60,16 @@ class Siamese(BaseModule):
             softmax: Boolean. Whether or not to use the softmax. 
             lr: float. Learning rate
             weight_aux: float. The weight for the auxiliary loss. weight_aux=1 means that it has the same weight as the target loss.
-                        if weight_aux = 0, this is equivalent to just using the target loss 
+                        if weight_aux = 0, this is equivalent to just using the target loss
+            strategy: string. The strategy to use on how to combine the different losses.
+                        Possible strategies: [sum, random]
         """
         super().__init__(lr)
         self.weight_aux = weight_aux
         self.auxiliary = auxiliary
         self.target = target
         self.softmax = softmax
+        self.strategy = strategy
 
     def forward(self, x):
         x1 = x[:, 0:1, :, :]
@@ -99,13 +102,15 @@ class Siamese(BaseModule):
             preds = torch.argmax(out, dim=1)
             loss_target = self.loss(out, y_target)
             loss_digit = (loss_d1 + loss_d2) / 2
-            decision = random.randint(0, 1)
-            if decision:
-                loss = loss_target
+            if self.strategy == 'random':
+                decision = random.randint(0, 1)
+                if decision:
+                    loss = loss_target
 
-            else:
-                loss = loss_digit
-
+                else:
+                    loss = loss_digit
+            elif self.strategy == 'sum':
+                loss = self.weight_aux * loss_digit + loss_target
         else:
             preds = out 
             loss = (loss_d1 + loss_d2) / 2 
