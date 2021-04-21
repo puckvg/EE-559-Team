@@ -106,13 +106,12 @@ class Siamese(BaseModule):
                 decision = random.randint(0, 1)
                 if decision:
                     loss = loss_target
-
                 else:
                     loss = loss_digit
             elif self.strategy == 'sum':
                 loss = self.weight_aux * loss_digit + loss_target
             else:
-                raise ValueError(f'Unknown strategy: {strategy}')
+                raise ValueError(f'Unknown strategy: {self.strategy}')
         else:
             preds = out 
             loss = (loss_d1 + loss_d2) / 2 
@@ -227,28 +226,28 @@ class LinearAlpha(BaseModule):
         
         # Layer 1
         x = self.fc1(x)
-        x = self.bn1(x)
+        # x = self.bn1(x)
         x = nn.functional.relu(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
         
         # Layer 2
         x = self.fc2(x)
-        x = self.bn2(x)
+        # x = self.bn2(x)
         x = nn.functional.relu(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
         
         # Layer 3
         for _ in range(2):
             x = self.fc3(x)
-            x = self.bn3(x)
+            # x = self.bn3(x)
             x = nn.functional.relu(x)
-            x = self.dropout(x)
+            # x = self.dropout(x)
         
         # Layer 4
         x = self.fc4(x)
-        x = self.bn4(x)
+        # x = self.bn4(x)
         x = nn.functional.relu(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
         
         # Layer 5
         x = self.fc5(x)
@@ -257,33 +256,56 @@ class LinearAlpha(BaseModule):
         
 class LinearBeta(BaseModule):
     """ FC model with dropouts and batch normalization, going from aux output to target output """
-    def __init__(self, lr=0.001):
+    def __init__(self, lr=0.001, label_encoded=True):
         super().__init__(lr)
         self.fc1 = nn.Linear(20, 10)
         self.bn1 = nn.BatchNorm1d(num_features=10)
         self.fc2 = nn.Linear(10, 10)
         self.bn2 = nn.BatchNorm1d(num_features=10)
         self.fc3 = nn.Linear(10, 2)
+        self.flat = nn.Flatten(start_dim=1)
         self.dropout = nn.Dropout(p=0.5)
+        self.label_encoded = label_encoded
         
     def forward(self, x):
+        if self.label_encoded:
+            # one hot encode class labels
+            x = nn.functional.one_hot(x, num_classes=10).float()
+            x = self.flat(x)
+        
         # First layer
         x = self.fc1(x)
-        x = self.bn1(x)
+        # x = self.bn1(x)
         x = nn.functional.relu(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
         
         # Second layer
         for _ in range(3):
             x = self.fc2(x)
-            x = self.bn2(x)
+            # x = self.bn2(x)
             x = nn.functional.relu(x)
-            x = self.dropout(x)
+            # x = self.dropout(x)
         
         # Thrird layer
         x = self.fc3(x)
         
         return x
+    
+    def training_step(self, batch, batch_idx):
+        _, x, y = batch
+        out = self(x)
+        loss = self.loss(out, y)
+        preds = torch.argmax(out, dim=1)
+        acc = self.accuracy(preds, y)
+        return loss, acc
+    
+    def validation_step(self, batch, batch_idx):
+        _, x, y = batch
+        out = self(x)
+        loss = self.loss(out, y)
+        preds = torch.argmax(out, dim=1)
+        acc = self.accuracy(preds, y)
+        return loss, acc
         
 
 class TailLinear(BaseModule):
