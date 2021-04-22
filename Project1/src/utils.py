@@ -127,3 +127,31 @@ def plot_training_epochs(nb_epochs, train_losses, train_accuracies,
     if savefig:
         plt.savefig(savefig, dpi=300)
     return plt 
+
+def multi_plot_training_epochs(nb_epochs, train_losses, 
+                               train_accuracies, validation_accuracies, 
+                               labels,
+                               y_label_0="train accuracy", 
+                               y_label_1="validation accuracy",
+                               y_label_2="train cross entropy loss",
+                               savefig=None):
+    fig, axes = plt.subplots(nrows=1, ncols=3)
+    for i,ax in enumerate(axes):
+        axes[i].set_xlabel("epochs")
+    axes[0].set_ylabel(y_label_0)
+    axes[1].set_ylabel(y_label_1)
+    axes[2].set_ylabel(y_label_2)
+    colors = ["red", "green", "blue"]
+
+    for i,label in enumerate(labels):
+        axes[0].plot(list(range(nb_epochs)), train_accuracies[i], label=label, 
+                    color=colors[i])
+        axes[1].plot(list(range(nb_epochs)), validation_accuracies[i], label=label,
+                    color=colors[i])
+        axes[2].plot(list(range(nb_epochs)), train_losses[i], label=label,
+                    color=colors[i])
+    axes[2].legend(loc="upper left", bbox_to_anchor=(1.05, 1))
+    plt.tight_layout()
+    if savefig:
+        plt.savefig(savefig, dpi=300)
+    return plt

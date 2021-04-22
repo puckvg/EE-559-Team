@@ -2,7 +2,7 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 
 class Trainer:
-    def __init__(self, nb_epochs, run, verbose=True):
+    def __init__(self, nb_epochs, run="run", verbose=True):
         """ Create a trainer by specifying the number of epochs to train 
         Args:
             nb_epochs: int.
@@ -66,8 +66,9 @@ class Trainer:
 
                 # Write to tensor board
                 self.tb.add_scalar("Training loss", avg_loss_train, e)
-                self.tb.add_scalar("Training loss", avg_loss_val, e)
-                self.tb.add_scalar("Accuracy", avg_acc_val, e)
+                self.tb.add_scalar("Training accuracy", avg_acc_train, e)
+                #self.tb.add_scalar("Validation loss", avg_loss_val, e)
+                self.tb.add_scalar("Validation accuracy", avg_acc_val, e)
 
                 #for name, weight in model.named_parameters():
                 #    tb.add_histogram(name,weight, e)
