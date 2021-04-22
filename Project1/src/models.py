@@ -51,13 +51,14 @@ class BaseModule(AbstractModule):
 class Siamese(BaseModule):
     """ Siamese modules can inherit from Siamese to use the trainer """
     def __init__(self, auxiliary, target=nn.Linear(20, 2), strategy='random',
-                 softmax=True, lr=0.001, weight_aux=0.5):
+                 softmax=True, argmax=True, lr=0.001, weight_aux=0.5):
         """ 
         Args:
             auxiliary: Module. Network that produces the auxiliary loss.
             target: Module. Network that produces the target loss (starting from auxiliary layer)
                     for direct digit prediction + arithmetic comparison set target=None
             softmax: Boolean. Whether or not to use the softmax. 
+            argmax: Boolean. Whether or not to use the argmax.
             lr: float. Learning rate
             weight_aux: float. The weight for the auxiliary loss. weight_aux=1 means that it has the same weight as the target loss.
                         if weight_aux = 0, this is equivalent to just using the target loss
@@ -69,6 +70,7 @@ class Siamese(BaseModule):
         self.auxiliary = auxiliary
         self.target = target
         self.softmax = softmax
+        self.argmax = argmax
         self.strategy = strategy
 
     def forward(self, x):
@@ -81,10 +83,15 @@ class Siamese(BaseModule):
         if self.softmax:
             d1 = nn.functional.softmax(d1, dim=1)
             d2 = nn.functional.softmax(d2, dim=1)
+
+        if self.argmax: 
+            d1 = d1.argmax(dim=1).view(-1,1)
+            d2 = d2.argmax(dim=1).view(-1,1)
                 
         if self.target:
-            x = torch.cat((d1.argmax(dim=1).view(-1, 1), d2.argmax(dim=1).view(-1, 1)), 1)
+            x = torch.cat((d1, d2), 1)
             x = self.target(x)
+
         else: 
             p_d1 = torch.argmax(d1, dim=1)
             p_d2 = torch.argmax(d2, dim=1)
@@ -95,6 +102,8 @@ class Siamese(BaseModule):
     def training_step(self, batch, batch_idx):
         x, y_class, y_target = batch
         d1, d2, out = self(x)
+        d1 = d1.float()
+        d2 = d2.float()
         loss_d1 = self.loss(d1, y_class[:, 0])
         loss_d2 = self.loss(d2, y_class[:, 1])
 
