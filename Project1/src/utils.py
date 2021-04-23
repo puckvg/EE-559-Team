@@ -2,6 +2,7 @@ from src.dlc_practical_prologue import generate_pair_sets
 import torch
 from torch.utils.data import DataLoader, TensorDataset, random_split
 import matplotlib.pyplot as plt
+import numpy as np
 
 def normalize_input(train_input, test_input):
     mean = torch.mean(train_input)
@@ -141,15 +142,16 @@ def multi_plot_training_epochs(nb_epochs, train_losses,
     axes[0].set_ylabel(y_label_0)
     axes[1].set_ylabel(y_label_1)
     axes[2].set_ylabel(y_label_2)
-    colors = ["red", "green", "blue"]
+    colors = iter(plt.cm.rainbow(np.linspace(0,1,len(train_losses)+1))) 
 
     for i,label in enumerate(labels):
+        color = next(colors)
         axes[0].plot(list(range(nb_epochs)), train_accuracies[i], label=label, 
-                    color=colors[i])
+                    color=color)
         axes[1].plot(list(range(nb_epochs)), validation_accuracies[i], label=label,
-                    color=colors[i])
+                    color=color)
         axes[2].plot(list(range(nb_epochs)), train_losses[i], label=label,
-                    color=colors[i])
+                    color=color)
     axes[2].legend(loc="upper left", bbox_to_anchor=(1.05, 1))
     plt.tight_layout()
     if savefig:
