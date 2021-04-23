@@ -84,10 +84,6 @@ class Siamese(BaseModule):
             d1 = nn.functional.softmax(d1, dim=1)
             d2 = nn.functional.softmax(d2, dim=1)
 
-        #if self.argmax: 
-        #    d1 = d1.argmax(dim=1).view(-1,1)
-        #    d2 = d2.argmax(dim=1).view(-1,1)
-                
         if self.target:
             if self.argmax:
                 x = torch.cat((d1.argmax(dim=1).view(-1,1), d2.argmax(dim=1).view(-1,1)), 1)
@@ -105,8 +101,6 @@ class Siamese(BaseModule):
     def training_step(self, batch, batch_idx):
         x, y_class, y_target = batch
         d1, d2, out = self(x)
-        #d1 = d1.float()
-        #d2 = d2.float()
         loss_d1 = self.loss(d1, y_class[:, 0])
         loss_d2 = self.loss(d2, y_class[:, 1])
 
@@ -197,9 +191,8 @@ class LinearBaseline(BaseModule):
         x = self.fc2(x)
         x = nn.functional.relu(x)
         
-        for _ in range(1):
-            x = self.fc3(x)
-            x = nn.functional.relu(x)
+        x = self.fc3(x)
+        x = nn.functional.relu(x)
         
         x = self.fc4(x)
         x = nn.functional.relu(x)
@@ -217,57 +210,53 @@ class LinearBaseline(BaseModule):
     
 
 class LinearAlpha(BaseModule):
-    """ FC model with dropouts and batch normalization, going from pixels to aux output """
+    """ FC model going from pixels to aux output """
     def __init__(self, lr=0.001):
         super().__init__(lr)
         self.flat = nn.Flatten(start_dim=1)
-        self.drop = nn.Dropout()
-        self.fc1 = nn.Linear(196, 120)
-        self.bn1 = nn.BatchNorm1d(num_features=120)
-        self.fc2 = nn.Linear(120, 50)
-        self.bn2 = nn.BatchNorm1d(num_features=50)
-        self.fc3 = nn.Linear(50, 50)
-        self.bn3 = nn.BatchNorm1d(num_features=50)
-        self.fc4 = nn.Linear(50, 20)
-        self.bn4 = nn.BatchNorm1d(num_features=20)
-        self.fc5 = nn.Linear(20, 10)
-        self.dropout = nn.Dropout(p=0.5)
+        self.fc1 = nn.Linear(196, 160)
+        self.fc2 = nn.Linear(160, 120)
+        self.fc3 = nn.Linear(120, 100)
+        self.fc4 = nn.Linear(100, 50)
+        self.fc5 = nn.Linear(50, 50)
+        self.fc6 = nn.Linear(50, 20)
+        self.fc7 = nn.Linear(20, 10)
         
     def forward(self, x):
         x = self.flat(x)
         
         # Layer 1
         x = self.fc1(x)
-        # x = self.bn1(x)
         x = nn.functional.relu(x)
-        # x = self.dropout(x)
         
         # Layer 2
         x = self.fc2(x)
-        # x = self.bn2(x)
         x = nn.functional.relu(x)
-        # x = self.dropout(x)
         
         # Layer 3
-        for _ in range(2):
-            x = self.fc3(x)
-            # x = self.bn3(x)
-            x = nn.functional.relu(x)
-            # x = self.dropout(x)
-        
-        # Layer 4
-        x = self.fc4(x)
-        # x = self.bn4(x)
+        x = self.fc3(x)
         x = nn.functional.relu(x)
-        # x = self.dropout(x)
-        
+
+        # Layer 4 
+        x = self.fc4(x)
+        x = nn.functional.relu(x)
+
         # Layer 5
-        x = self.fc5(x)
+        for _ in range(3):
+            x = self.fc5(x)
+            x = nn.functional.relu(x)
+        
+        # Layer 6
+        x = self.fc6(x)
+        x = nn.functional.relu(x)
+        
+        # Layer 7
+        x = self.fc7(x)
         return x
     
         
 class LinearBeta(BaseModule):
-    """ FC model with dropouts and batch normalization, going from aux output to target output """
+    """ FC model going from aux output to target output """
     def __init__(self, lr=0.001, label_encoded=True):
         super().__init__(lr)
         self.fc1 = nn.Linear(20, 10)
