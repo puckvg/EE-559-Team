@@ -84,12 +84,15 @@ class Siamese(BaseModule):
             d1 = nn.functional.softmax(d1, dim=1)
             d2 = nn.functional.softmax(d2, dim=1)
 
-        if self.argmax: 
-            d1 = d1.argmax(dim=1).view(-1,1)
-            d2 = d2.argmax(dim=1).view(-1,1)
+        #if self.argmax: 
+        #    d1 = d1.argmax(dim=1).view(-1,1)
+        #    d2 = d2.argmax(dim=1).view(-1,1)
                 
         if self.target:
-            x = torch.cat((d1, d2), 1)
+            if self.argmax:
+                x = torch.cat((d1.argmax(dim=1).view(-1,1), d2.argmax(dim=1).view(-1,1)), 1)
+            else:
+                x = torch.cat((d1, d2), 1)
             x = self.target(x)
 
         else: 
@@ -102,8 +105,8 @@ class Siamese(BaseModule):
     def training_step(self, batch, batch_idx):
         x, y_class, y_target = batch
         d1, d2, out = self(x)
-        d1 = d1.float()
-        d2 = d2.float()
+        #d1 = d1.float()
+        #d2 = d2.float()
         loss_d1 = self.loss(d1, y_class[:, 0])
         loss_d2 = self.loss(d2, y_class[:, 1])
 
