@@ -5,8 +5,9 @@ class Trainer:
     def __init__(self, nb_epochs, run="run", verbose=True):
         """ Create a trainer by specifying the number of epochs to train 
         Args:
-            nb_epochs: int.
+            nb_epochs: int. Number of epochs to train
             run: string. Title of the run to appear in tensorboard.
+            verbose: bool. Whether or not to output training information.
         """
         self.nb_epochs = nb_epochs
         self.verbose = verbose
@@ -19,7 +20,7 @@ class Trainer:
             model: Module. Model to train
             dl_train: DataLoader. DataLoader containing the training data
             dl_val: DataLoader. DataLoader containting the validation data
-
+            verbose: bool. Whether or not to output training information
         """
         #tb = SummaryWriter(self.run)
         #images = next(iter(dl_train))
@@ -84,7 +85,7 @@ class Trainer:
         Args:
             model: Module. Model to train
             dl_test: DataLoader. DataLoader containting the test data
-            test_verbose: bool. Wether the test result should be printed
+            test_verbose: bool. Whether the test result should be printed
         """
 
         loss_test = []
