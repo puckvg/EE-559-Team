@@ -11,7 +11,6 @@ class Trainer:
         """
         self.nb_epochs = nb_epochs
         self.verbose = verbose
-        #self.run = f'runs/{run}'
         self.tb = SummaryWriter(f'runs/{run}')
     
     def fit(self, model, dl_train, dl_val, verbose=True):
@@ -22,9 +21,6 @@ class Trainer:
             dl_val: DataLoader. DataLoader containting the validation data
             verbose: bool. Whether or not to output training information
         """
-        #tb = SummaryWriter(self.run)
-        #images = next(iter(dl_train))
-        #tb.add_graph(model, images[0])
         
         self.verbose = verbose
 
@@ -68,12 +64,8 @@ class Trainer:
                 # Write to tensor board
                 self.tb.add_scalar("Training loss", avg_loss_train, e)
                 self.tb.add_scalar("Training accuracy", avg_acc_train, e)
-                #self.tb.add_scalar("Validation loss", avg_loss_val, e)
+                self.tb.add_scalar("Validation loss", avg_loss_val, e)
                 self.tb.add_scalar("Validation accuracy", avg_acc_val, e)
-
-                #for name, weight in model.named_parameters():
-                #    tb.add_histogram(name,weight, e)
-                #    tb.add_histogram(f'{name}.grad',weight.grad, e)
 
             self.tb.close()
 
