@@ -1,5 +1,6 @@
 import torch
-from torch.utils.tensorboard import SummaryWriter
+#from torch.utils.tensorboard import SummaryWriter
+import time 
 
 class Trainer:
     def __init__(self, nb_epochs, run="run", verbose=True):
@@ -11,7 +12,7 @@ class Trainer:
         """
         self.nb_epochs = nb_epochs
         self.verbose = verbose
-        self.tb = SummaryWriter(f'runs/{run}')
+ #       self.tb = SummaryWriter(f'runs/{run}')
     
     def fit(self, model, dl_train, dl_val, verbose=True):
         """ Train the model on the specified data and print the training and validation loss and accuracy.
@@ -28,27 +29,38 @@ class Trainer:
         train_loss_epochs = []
         train_acc_epochs = []
         val_acc_epochs = []
+        train_time = 0.0
+        val_time = 0.0
 
         for e in range(self.nb_epochs):
             loss_train = []
             acc_train = []
             for batch_idx, batch in enumerate(dl_train):
+                start_time = time.time()
                 model.train()
                 optimizer.zero_grad()
                 loss, acc = model.training_step(batch, batch_idx)
                 loss.backward()
                 optimizer.step()
+                end_time = time.time()
+                train_time_batch = end_time - start_time
+                train_time += train_time_batch
 
                 loss_train.append(loss.item())
                 acc_train.append(acc)
 
             loss_val = []
             acc_val = []
+
             if self.verbose:
                 for batch_idx, batch in enumerate(dl_val):
                     model.eval()
+                    start_time = time.time()
                     with torch.no_grad():
                         loss, acc = model.validation_step(batch, batch_idx)
+                        end_time = time.time()
+                        val_time_batch = end_time - start_time
+                        val_time += val_time_batch
                         loss_val.append(loss.item())
                         acc_val.append(acc)
                 avg_loss_train = round(sum(loss_train)/len(loss_train), 2)
@@ -62,14 +74,18 @@ class Trainer:
                 print(f'# Epoch {e+1}/{self.nb_epochs}:\t loss={avg_loss_train}\t loss_val={avg_loss_val}\t acc_val={avg_acc_val}')
 
                 # Write to tensor board
-                self.tb.add_scalar("Training loss", avg_loss_train, e)
-                self.tb.add_scalar("Training accuracy", avg_acc_train, e)
-                self.tb.add_scalar("Validation loss", avg_loss_val, e)
-                self.tb.add_scalar("Validation accuracy", avg_acc_val, e)
+                #self.tb.add_scalar("Training loss", avg_loss_train, e)
+                #self.tb.add_scalar("Training accuracy", avg_acc_train, e)
+                #self.tb.add_scalar("Validation loss", avg_loss_val, e)
+                #self.tb.add_scalar("Validation accuracy", avg_acc_val, e)
 
-            self.tb.close()
+           # self.tb.close()
+        end_time = time.time()
+
+        print(f'train time {train_time} s')
 
         if self.verbose:
+            print(f'validation time {val_time} s')
             return train_loss_epochs, train_acc_epochs, val_acc_epochs 
 
     def test(self, model, dl_test, test_verbose=True, return_acc=True):
