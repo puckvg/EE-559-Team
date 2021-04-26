@@ -13,7 +13,7 @@ def normalize_input(train_input, test_input):
     test_input /= std
     return train_input, test_input
 
-def _load_data(data_id, batch_size=32, split_lengths=[800, 200], nb_workers=4, normalize=True):
+def _load_data(data_id, batch_size=32, split_lengths=[800, 200], nb_workers=0, normalize=True):
     # Load data
     train_input, train_target, train_classes, test_input, test_target, test_classes = generate_pair_sets(nb=1000)
     if normalize: 
