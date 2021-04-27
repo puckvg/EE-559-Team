@@ -44,18 +44,19 @@ args = parser.parse_args()
 """
 Nomenclature used:
 m1      1-fc_baseline
-m2      fc_aux
-m3      3-conv_no_aux
+m2      2-fc_aux
+m3      3-conv_net
 m4      4-conv_aux
-m5      5-conv_aux_tailnet
-m6      6-digits_to_class
-m7      7-conv_aux_tailnet_softmax
-m8      8-conv_aux_tailnet_argmax
+m5      5-digits
+m6      6-conv_tail
+m7      7-conv_softmax
+m8      8-conv_argmax
 m9      9-pretrained_tail
+m10     10-pretrain_random
 """
 
-model_names = ['fc_baseline', 'fc_aux', 'conv_no_aux', 'conv_aux', 'conv_aux_tailnet',
-               'digits_to_class', 'conv_aux_tailnet_softmax', 'conv_aux_tailnet_argmax',
+model_names = ['fc_baseline', 'fc_aux', 'conv_net', 'conv_aux', 'digits',
+               'conv_tail', 'conv_softmax', 'conv_argmax',
                'pretrained_tail']
 
 def cv_train(name, model, args, run):
