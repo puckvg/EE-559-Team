@@ -1,13 +1,10 @@
-from src.dlc_practical_prologue import generate_pair_sets
-from src.utils import load_class_data, load_target_data, load_all_data, print_param_count, plot_training_epochs, multi_plot_training_epochs
+from src.utils import load_target_data, load_all_data,  
 from src.models import *
 from src.trainer import Trainer
 
 import numpy as np
-import matplotlib.pyplot as plt 
 
 import argparse
-import os
 
 
 ##############################################################################
@@ -20,7 +17,7 @@ parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
     If --train is not given, trained models will be loaded and evaluated.
     
     If --train argument is given, n_cv trainings from different random 
-    initializations and data sets is performed. (Similar to what has been done 
+    initializations and data sets are done. (Similar to what has been done 
     in the report)''')
 
 parser.add_argument('--train', 
@@ -72,6 +69,7 @@ def cv_train(name, model, args, run):
         val_acc.append(acc_val)
         test_acc.append(acc_test)
     if args.save_models:
+        # Save model
         torch.save(model.state_dict(), 'models/' + name + '.pt')
     return train_acc, val_acc, test_acc 
 
@@ -98,8 +96,7 @@ if args.train:
     ### m2 ###
     alpha = LinearAlpha()
     beta = LinearBeta(label_encoded=False)
-    m2 = Siamese(alpha, beta, weight_aux=0.5, softmax=False, 
-                argmax=False, strategy='sum')
+    m2 = Siamese(alpha, beta, weight_aux=0.5, softmax=False, argmax=False, strategy='sum')
     m2_train_acc, m2_val_acc, m2_test_acc = cv_train('m2', m2, args, 'fc_aux_argmax') 
     
     
@@ -120,8 +117,7 @@ if args.train:
     
     ### m5 ###
     le_net = LeNet()
-    m5 = Siamese(le_net, target=None, softmax=False,
-                            argmax=False, strategy="sum", 
+    m5 = Siamese(le_net, target=None, softmax=False, argmax=False, strategy="sum", 
                             weight_aux=0.)
     m5_train_acc, m5_val_acc, m5_test_acc = cv_train('m5', m5, args, 'digit')
     
@@ -257,6 +253,7 @@ else:
     # Evaluating models on 5 data samples
     print("\n####### Evaluation results #######")
     print("\nNumber of folds: 5\n")
+    
     _, _, dl_test_1 = load_all_data(normalize=True)
     _, _, dl_test_2 = load_all_data(normalize=True)
     _, _, dl_test_3 = load_all_data(normalize=True)
