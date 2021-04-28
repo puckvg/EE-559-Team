@@ -157,3 +157,79 @@ def multi_plot_training_epochs(nb_epochs, train_losses,
     if savefig:
         plt.savefig(savefig, dpi=300)
     return plt
+
+
+### m1 ###
+def init_m1():
+    m1 = LinearBaseline()
+    return m1
+
+### m2 ###
+def init_m2():
+    alpha = LinearAlpha()
+    beta = LinearBeta(label_encoded=False)
+    m2 = Siamese(alpha, beta, weight_aux=0.5, softmax=False, 
+                argmax=False, strategy='sum')
+    return m2
+
+### m3 ###
+def init_m3():
+    le_net = LeNet()
+    linear = nn.Linear(20, 2)
+    m3 = Siamese(le_net, target=linear, weight_aux=0., strategy="sum",
+                            softmax=False, argmax=False)
+    return m3
+
+### m4 ###
+def init_m4():
+    le_net = LeNet()
+    tail_net = nn.Linear(20,2)
+    m4 = Siamese(le_net, softmax=False, argmax=False, strategy="sum", 
+                                target=tail_net, weight_aux=0.8)
+    return m4
+
+### m5 ###
+def init_m5():
+    le_net = LeNet()
+    tail_net = TailLinear(label_encoded=False)
+    m5 = Siamese(le_net, target=tail_net, weight_aux=0.6, softmax=False,
+                        argmax=False, strategy='sum')
+    return m5
+
+### m6 ###
+def init_m6():
+    le_net = LeNet()
+    m6 = Siamese(le_net, target=None, softmax=False,
+                            argmax=False, strategy="sum", 
+                            weight_aux=0.)
+    return m6
+
+### m7 ###
+def init_m7():
+    le_net = LeNet()
+    tail_net = TailLinear(label_encoded=False)
+    m7 = Siamese(le_net, target=tail_net, weight_aux=0.6, strategy='sum',
+                    softmax=True, argmax=False)
+    return m7
+
+### m8 ###
+def init_m8():
+    le_net = LeNet()
+    tail_net = TailLinear(label_encoded=True)
+    m8 = Siamese(le_net, target=tail_net, weight_aux=0.6, strategy='sum',
+                            softmax=False, argmax=True)
+    return m8
+
+### m9 ###
+def init_m9():
+    tail = TailLinear(label_encoded=True)
+    le_net = LeNet()
+    m9 = Siamese(auxiliary=le_net, target=tail, softmax=False, strategy='sum')
+    return m9
+
+### m10 ###
+def init_m10():
+    tail = TailLinear(label_encoded=True)
+    le_net = LeNet()
+    m10 = Siamese(auxiliary=le_net, target=tail, softmax=False, strategy='random')
+    return m10

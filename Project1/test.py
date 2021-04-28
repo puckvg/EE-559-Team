@@ -44,21 +44,22 @@ m1      1-fc_baseline
 m2      2-fc_aux
 m3      3-conv_net
 m4      4-conv_aux
-m5      5-digits
-m6      6-conv_tail
+m5      5-conv_tail
+m6      6-digits
 m7      7-conv_softmax
 m8      8-conv_argmax
 m9      9-pretrained_tail
 m10     10-pretrain_random
 """
 
-model_names = ['fc_baseline', 'fc_aux', 'conv_net', 'conv_aux', 'digits',
-               'conv_tail', 'conv_softmax', 'conv_argmax',
-               'pretrain_tail', 'pretrain_random']
+model_names = ['fc_baseline', 'fc_aux', 'conv_net', 'conv_aux', 'conv_tail', 'digits',
+                'conv_softmax', 'conv_argmax',
+                'pretrain_tail', 'pretrain_random']
 
 def cv_train(name, model_id, args, run):
     """ Helper function for cross-valdiated training """
     train_acc, val_acc, test_acc = [], [], []
+    print(f'\n### Train model {model_id} ###\n')
     for _ in range(args.n_cv):
         model = init_model(model_id)
         # Define, train and evaluate model
@@ -76,8 +77,6 @@ def cv_train(name, model_id, args, run):
 
 
 # Define models
-    
-models = []
 
 ### m1 ###
 def init_m1():
@@ -261,6 +260,7 @@ else:
     # Load models from pickel files
 
     ### m1 - m10 ###
+    models = []
     for i in range(1, 11, 1):
         m = init_model(i)
         m.load_state_dict(torch.load(f'models/m{i}.pt'))
