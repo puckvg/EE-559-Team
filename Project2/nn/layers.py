@@ -1,7 +1,7 @@
 import torch
-from nn.module import module
+from nn.module import Module
 
-class Layer(module.Module):
+class Layer(Module):
     def update_param(self, *args, **kwargs):
         """ Update the params of the Layer based on the cached gradients """
         pass
