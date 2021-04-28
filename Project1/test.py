@@ -56,10 +56,11 @@ model_names = ['fc_baseline', 'fc_aux', 'conv_net', 'conv_aux', 'digits',
                'conv_tail', 'conv_softmax', 'conv_argmax',
                'pretrain_tail', 'pretrain_random']
 
-def cv_train(name, model, args, run):
+def cv_train(name, model_id, args, run):
     """ Helper function for cross-valdiated training """
     train_acc, val_acc, test_acc = [], [], []
     for _ in range(args.n_cv):
+        model = init_model(model_id)
         # Define, train and evaluate model
         dl_train_all, dl_val_all, dl_test_all = load_all_data(normalize=True)
         trainer = Trainer(nb_epochs=args.nb_epochs, verbose=False, run=run)
@@ -71,7 +72,7 @@ def cv_train(name, model, args, run):
     if args.save_models:
         # Save model
         torch.save(model.state_dict(), 'models/' + name + '.pt')
-    return train_acc, val_acc, test_acc 
+    return train_acc, val_acc, test_acc
 
 
 # Define models
@@ -193,11 +194,8 @@ if args.train:
     
     
     ### m2-m8 ###
-    for i in range(1, 9, 1):
-        m = init_model(i+1)
-        train_acc, val_acc, test_acc = cv_train(f'm{i+1}', m, args, model_names[i])
-
-        models.append(m)
+    for i in range(2, 9, 1):
+        train_acc, val_acc, test_acc = cv_train(f'm{i+1}', i+1, args, model_names[i])
         train_accs.append(train_acc)
         val_accs.append(val_acc)
         test_accs.append(test_acc)
