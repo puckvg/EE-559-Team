@@ -194,7 +194,7 @@ if args.train:
     
     
     ### m2-m8 ###
-    for i in range(2, 9, 1):
+    for i in range(1, 9, 1):
         train_acc, val_acc, test_acc = cv_train(f'm{i+1}', i+1, args, model_names[i])
         train_accs.append(train_acc)
         val_accs.append(val_acc)
