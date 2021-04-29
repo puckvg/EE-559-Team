@@ -145,3 +145,5 @@ cython_debug/
 
 # Run directory
 **/runs/
+
+out.txt

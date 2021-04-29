@@ -1,3 +1,3 @@
 class Optimizer():
-    def __init__(lr):
+    def __init__(self, lr):
         self.lr = lr

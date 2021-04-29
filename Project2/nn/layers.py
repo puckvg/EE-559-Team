@@ -9,7 +9,7 @@ class Layer(Module):
     def _grad_local(self, x):
         pass
 
-    def _get_param(self):
+    def param(self):
         """ Return the params of the Layer. """
         pass
 
@@ -25,7 +25,11 @@ class Linear(Layer):
         Returns:
             output: Linear
         """
-        raise NotImplementedError
+        super().__init__()
+        
+        # Initialize parameters
+        self.cache['w'] = torch.empty((dim_out, dim_in)).normal_()
+        self.cache['b'] = torch.empty((dim_out, )).normal_()
 
     def forward(self, x):
         """ Calculate output.
@@ -34,7 +38,8 @@ class Linear(Layer):
         Returns:
             output: torch.tensor.
         """
-        raise NotImplementedError
+        w, b = self.param()
+        return w.matmul(x) + b
 
     def backward(self, dy):
         """ Compute gradients of input and parameters.
@@ -43,25 +48,32 @@ class Linear(Layer):
         Returns:
             output: torch.tensor: Gradient.
         """
-        raise NotImplementedError
 
-    def update_param(self, lr):
-        """ Update parameter of the Linear Layer based on the cached gradients.
-        Args:
-            lr: float. Learning rate.
-        """
-        raise NotImplementedError
+        # Read local gradients from cache
+        dx_loc = self.cache['dx_loc']
+        dw_loc = self.cache['dw_loc']
 
-    def _get_param(self):
+        # Compute global gradients
+        self.cache['dx_glob'] = dx_loc.T.mm(dy)
+        self.cache['dw_glob'] = dy.mm(dw_loc.T)
+        self.cache['db_glob'] = dy
+
+    def param(self):
         """ Get parameters of the linear layer from the cache.
         Returns:
             w, b: torch.tensor.
         """
-        raise NotImplementedError
+        w = self.cache['w']
+        b = self.cache['b']
+        return w, b
 
     def _grad_local(self, x):
         """ Compute local gradients of Linear with respect to input and parameters. Store the gradients in the cache for the backward step.
         Args:
             x: torch.tensor. Input tensor.
         """
-        raise NotImplementedError
+        w, _ = self.param()
+        
+        self.cache['dx_loc'] = w
+        self.cache['dw_loc'] = x
+        self.cache['db_loc'] = 1
