@@ -31,3 +31,16 @@ class Sequential(Module):
         loss = self.loss_fn(x, y)
         return loss
 
+    def update_params(self, optim, lr):
+        """ Update the parameters of the network iteratively
+            according to the cached gradients at each module. 
+
+        Args:
+            optim: string. The optimizer to use.
+                Example: 'adam', 'sgd'
+            lr: float. Learning rate
+
+        """
+        for module in self.modules:
+            module._update_params(optim, lr)
+
