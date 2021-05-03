@@ -1,5 +1,4 @@
 import torch 
-from loss import MSELoss
 
 class Optimizer():
     """
@@ -33,9 +32,6 @@ class Optimizer():
 
 
 class SGD(Optimizer): 
-    """
-    SGD with MSE loss 
-    """
     def __init__(self, params, lr=1e-3):
         super(Optimizer, self).__init__(params, lr=lr)
 
