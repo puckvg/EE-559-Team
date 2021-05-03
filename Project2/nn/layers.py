@@ -57,6 +57,7 @@ class Linear(Layer):
         self.cache['dx_glob'] = dx_loc.T.mm(dy)
         self.cache['dw_glob'] = dy.mm(dw_loc.T)
         self.cache['db_glob'] = dy
+        return self.cache['dx_glob']
 
     def param(self):
         """ Get parameters of the linear layer from the cache.
