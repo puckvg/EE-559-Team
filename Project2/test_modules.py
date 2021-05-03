@@ -1,6 +1,6 @@
 from unittest import TestCase
 import torch, random
-from nn.layers import Linear
+from nn.linear import Linear
 
 
 n_tests = 10
