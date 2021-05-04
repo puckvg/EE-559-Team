@@ -147,3 +147,6 @@ cython_debug/
 **/runs/
 
 out.txt
+
+# Playgrounds
+playground_*
