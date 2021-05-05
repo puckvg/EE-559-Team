@@ -15,11 +15,10 @@ class Loss(Module):
         """
         pass
 
-    def backward(self, x, y):
-        """ The backward method can be implemented in the generic Loss class as it should be the same for all Loss Modules. """
-        grad = self._grad_local(x, y)
-        self.cache['dy'] = grad
-        return grad 
+    def backward(self):
+        """ The backward method can be implemented in the generic Loss class
+            as it should be the same for all Loss Modules. """
+        return self.cache['dy']
 
     def _grad_local(self, x, y):
         """
@@ -51,4 +50,4 @@ class MSELoss(Loss):
             y: torch.tensor. Target tensor.
         """
         grad = d_mse(x, y)
-        return grad
+        self.cache['dy'] = grad
