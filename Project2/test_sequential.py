@@ -3,114 +3,13 @@ import torch, random
 from nn.linear import Linear
 from nn.loss import MSELoss
 from nn.sequential import Sequential
+from test_module import TestModule
 
 
 n_tests = 10
 max_dim = 5
 max_n_layers = 100
 thresh = 1e-1
-
-class TestModule(TestCase):
-    def _gen_data(self, in_dim, out_dim):
-        x = torch.empty((in_dim)).normal_()
-        y = torch.empty((out_dim)).normal_()
-        #y.requires_grad = True
-        return x, y
-
-    def _init_modules(self, in_dim, out_dim):
-        mod_ours = Linear(in_dim, out_dim)
-        mod_theirs = torch.nn.Linear(in_dim, out_dim)
-        mod_theirs.weight.data, mod_theirs.bias.data = mod_ours.param()
-        return mod_ours, mod_theirs
-    
-    def _forward(self, in_dim, out_dim):
-        raise NotImplementedError
-
-    def _backward(self):
-        raise NotImplementedError
-
-class TestLoss(TestModule):
-    def _init_modules(self):
-        loss_ours = MSELoss()
-        loss_theirs = torch.nn.MSELoss()
-        return loss_ours, loss_theirs
-
-    def _forward(self, in_dim, out_dim):
-        _, y = self._gen_data(in_dim, out_dim)
-        _, y_ = self._gen_data(in_dim, out_dim)
-
-        # Initialize losses
-        loss_ours, loss_theirs = self._init_modules()
-
-        # Compute forward pass
-        out_ours = loss_ours(y_, y)
-        out_theirs = loss_theirs(y_, y)
-
-        assert (out_ours - out_theirs).item() < thresh
-        return loss_ours, loss_theirs
-
-    def test_forward(self):
-        for _ in range(n_tests):
-            in_dim = random.randint(1, max_dim)
-            out_dim = random.randint(1, max_dim)
-            self._forward(in_dim, out_dim)
-
-class TestLinear(TestModule):
-    def _forward(self, in_dim, out_dim):
-        # Generate random test data
-        x, y = self._gen_data(in_dim, out_dim)
-
-        # Initialize modules
-        mod_ours, mod_theirs = self._init_modules(in_dim, out_dim)
-
-        # Compute forward pass
-        out_ours = mod_ours(x)
-        out_theirs = mod_theirs(x)
-
-        assert (out_ours == out_theirs).all().item()
-        return mod_ours, mod_theirs
-
-    def test_random_forward(self):
-        for _ in range(n_tests):
-            in_dim = random.randint(1, max_dim)
-            out_dim = random.randint(1, max_dim)
-            self._forward(in_dim, out_dim)
-            
-    def _backward(self, in_dim, out_dim):
-        mod_ours, mod_theirs = self._forward(in_dim, out_dim)
-        
-        loss_fn_ours = MSELoss()
-        loss_fn_theirs = torch.nn.MSELoss()
-
-        x, y = self._gen_data(in_dim, out_dim)
-
-        out_ours = mod_ours(x)
-        out_theirs = mod_theirs(x)
-
-        loss_ours = loss_fn_ours(out_ours, y)
-        loss_theirs = loss_fn_theirs(out_theirs, y)
-
-        dy = loss_fn_ours.backward()
-        mod_ours.backward(dy)
-
-        loss_fn_theirs = torch.nn.MSELoss()
-        loss_theirs = loss_fn_theirs(out_theirs, y)
-        loss_theirs.backward()
-
-        assert (mod_ours.cache['dw_glob'] - mod_theirs.weight.grad).max().item() < thresh
-    
-    def test_small_backward(self):
-        for _ in range(n_tests):
-            in_dim = 3
-            out_dim = 2
-            self._backward(in_dim, out_dim)
-    
-    def test_random_backward(self):
-        for _ in range(n_tests):
-            in_dim = random.randint(1, max_dim)
-            out_dim = random.randint(1, max_dim)
-            self._backward(in_dim, out_dim)
-
 
 class TestSequential(TestModule):
     def _forward_no_activation(self, in_dim, out_dim, n_layers):
