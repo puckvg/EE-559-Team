@@ -6,6 +6,8 @@ from nn.functional import *
 class Loss(Module):
     """ The Loss Module is used to implement a node in the network that computes the loss.
     For the computation of any function the respective functional from functional.py should be used. """
+    def __init__(self):
+        super().__init__()
 
     def forward(self, x, y):
         """ Compute the loss.
@@ -30,6 +32,8 @@ class Loss(Module):
 
 
 class MSELoss(Loss):
+    def __init__(self):
+        super().__init__()
 
     def forward(self, x, y):
         """ Compute the mean squared error.
