@@ -11,7 +11,7 @@ def mse(x, y, reduction='mean'):
         Returns:
             ms_error: float. Mean squared error.
     """
-    ms_error = (x- y).norm(p=2).pow(2)
+    ms_error = (x- y).norm(p=2).pow(2) / y.size(0)
     return ms_error
 
 

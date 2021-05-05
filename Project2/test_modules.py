@@ -6,6 +6,7 @@ from nn.loss import MSELoss
 
 n_tests = 10
 max_dim = 100
+thresh = 1e-3
 
 class TestLayers(TestCase):
     def _random_forward(self):
@@ -37,7 +38,7 @@ class TestLoss(TestCase):
     def _random_forward(self):
         # Generate random test data
         dim = random.randint(1, max_dim)
-        y_, y = torch.empty((dim,)).normal_(), torch.empty((dim,)).normal_()
+        y_, y = torch.empty((dim)).normal_(), torch.empty((dim)).normal_()
 
         # Initialize losses
         loss_ours = MSELoss()
@@ -47,7 +48,7 @@ class TestLoss(TestCase):
         out_ours = loss_ours(y_, y)
         out_theirs = loss_theirs(y_, y)
 
-        assert (out_ours == out_theirs).all().item()
+        assert (out_ours - out_theirs).item() < thresh
 
     def test_forward(self):
         for _ in range(n_tests):
