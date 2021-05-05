@@ -29,24 +29,43 @@ class TestModule(TestCase):
     def _backward(self):
         raise NotImplementedError
 
+class TestLoss(TestModule):
+    def _init_modules(self):
+        loss_ours = MSELoss()
+        loss_theirs = torch.nn.MSELoss()
+        return loss_ours, loss_theirs
+
+    def _forward(self, in_dim, out_dim):
+        _, y = self._gen_data(in_dim, out_dim)
+        _, y_ = self._gen_data(in_dim, out_dim)
+
+        # Initialize losses
+        loss_ours, loss_theirs = self._init_modules()
+
+        # Compute forward pass
+        out_ours = loss_ours(y_, y)
+        out_theirs = loss_theirs(y_, y)
+
+        assert (out_ours - out_theirs).item() < thresh
+        return loss_ours, loss_theirs
+
+    def test_forward(self):
+        for _ in range(n_tests):
+            in_dim = random.randint(1, max_dim)
+            out_dim = random.randint(1, max_dim)
+            self._forward(in_dim, out_dim)
+
 class TestLinear(TestModule):
     def _forward(self, in_dim, out_dim):
         # Generate random test data
         x, y = self._gen_data(in_dim, out_dim)
-        self.x = x 
-        self.y = y 
 
         # Initialize modules
         mod_ours, mod_theirs = self._init_modules(in_dim, out_dim)
 
         # Compute forward pass
         out_ours = mod_ours(x)
-        self.out_ours = out_ours
-
-        x.requires_grad = True
-        y.requires_grad = True 
         out_theirs = mod_theirs(x)
-        self.out_theirs = out_theirs
 
         assert (out_ours == out_theirs).all().item()
         return mod_ours, mod_theirs
@@ -63,6 +82,11 @@ class TestLinear(TestModule):
         loss_fn_ours = MSELoss()
         loss_fn_theirs = torch.nn.MSELoss()
 
+        x, y = self._gen_data(in_dim, out_dim)
+
+        out_ours = mod_ours(x)
+        out_theirs = mod_theirs(x)
+
         loss_ours = loss_fn_ours(out_ours, y)
         loss_theirs = loss_fn_theirs(out_theirs, y)
 
@@ -70,9 +94,7 @@ class TestLinear(TestModule):
         mod_ours.backward(dy)
 
         loss_fn_theirs = torch.nn.MSELoss()
-        y = self.y
-        y.requires_grad = True 
-        loss_theirs = loss_fn_theirs(self.out_theirs, y)
+        loss_theirs = loss_fn_theirs(out_theirs, y)
         loss_theirs.backward()
 
         assert (mod_ours.cache['dw_glob'] - mod_theirs.weight.grad).max().item() < thresh
