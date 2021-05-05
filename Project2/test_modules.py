@@ -1,6 +1,7 @@
 from unittest import TestCase
 import torch, random
 from nn.linear import Linear
+from nn.loss import MSELoss
 
 
 n_tests = 10
@@ -31,3 +32,23 @@ class TestLayers(TestCase):
 
     #def test_backward(self):
         # need loss module for that
+
+class TestLoss(TestCase):
+    def _random_forward(self):
+        # Generate random test data
+        dim = random.randint(1, max_dim)
+        y_, y = torch.empty((dim,)).normal_(), torch.empty((dim,)).normal_()
+
+        # Initialize losses
+        loss_ours = MSELoss()
+        loss_theirs = torch.nn.MSELoss()
+
+        # Compute forward pass
+        out_ours = loss_ours(y_, y)
+        out_theirs = loss_theirs(y_, y)
+
+        assert (out_ours == out_theirs).all().item()
+
+    def test_forward(self):
+        for _ in range(n_tests):
+            self._random_forward()
