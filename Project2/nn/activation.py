@@ -38,15 +38,32 @@ class ReLU(Activation):
         out = f.relu(x)
         return out
     
-    def backward(self):
+    def backward(self, dy):
         """ Compute gradients of input.
         Args:
-            x: torch.tensor. Input tensor.
+            dy: torch.tensor: Backpropagated gradient from the next layer.
             
         Returns:
             grad: torch.tensor. Gradient
         """
-        grad = f.d_relu(x)
-        return grad
+        
+        # Read local gradients from cache
+        dx_loc = self.cache['dx_loc']
+        
+        # Compute global gradients
+        self.cache['dx_glob'] = dx_loc.T.mm(dy)
+        
+        return self.cache['dx_glob']
+    
+    def _grad_local(self, x):
+        """ Compute local gradients of ReLU with respect to input and parameters. Store the gradients in the cache for the backward step.
+        Args:
+            x: torch.tensor. Input tensor.
+        """
+        
+        self.cache['dx_loc'] = f.d_relu(x)
+        
+
+
         
     
