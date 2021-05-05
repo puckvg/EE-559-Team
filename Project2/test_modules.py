@@ -82,10 +82,19 @@ class TestLoss(TestModule):
         loss_ours, loss_theirs = self._init_modules()
 
         _ = loss_ours(y_, y)
-        _ = loss_theirs(y_, y)
-
         loss_ours.backward()
-        loss_theirs.backward()
+
+        y_.requires_grad=True
+        y.requires_grad=True
+        out_theirs = loss_theirs(y_, y)
+        out_theirs.backward()
+
+        # PROBLEM : cache is not being updated 
+        print('our weight grad')
+        print(loss_ours.cache['dw_glob'])
+        print('our bias grad')
+        print(loss_ours.cache['db_glob'])
+
         
         assert (loss_ours.cache['dw_glob'] == loss_theirs.weight.grad).all().item(), 'Gradient of weights must be equal'
         assert (loss_ours.cache['db_glob'] == loss_theirs.bias.grad).all().item(), 'Gradient of bias must be equal'
