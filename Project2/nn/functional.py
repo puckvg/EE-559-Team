@@ -24,7 +24,7 @@ def d_mse(x, y, reduction='mean'):
         Returns:
             d_mse: float. Gradient of mean squared error.
     """
-    d_mse = 2*(x - y)
+    d_mse = 2*(x - y) / y.size(0)
     return d_mse
 
 
