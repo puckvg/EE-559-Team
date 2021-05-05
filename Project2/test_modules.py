@@ -14,6 +14,7 @@ class TestModule(TestCase):
     def _gen_data(self, in_dim, out_dim):
         x = torch.empty((in_dim)).normal_()
         y = torch.empty((out_dim)).normal_()
+        #y.requires_grad = True
         return x, y
 
     def _init_modules(self, in_dim, out_dim):
@@ -28,7 +29,7 @@ class TestModule(TestCase):
     def _backward(self):
         raise NotImplementedError
 
-class TestLayers(TestModule):
+class TestLinear(TestModule):
     def _forward(self, in_dim, out_dim):
         # Generate random test data
         x, _ = self._gen_data(in_dim, out_dim)
@@ -49,11 +50,7 @@ class TestLayers(TestModule):
             out_dim = random.randint(1, max_dim)
             self._forward(in_dim, out_dim)
             
-
-    def _small_backward(self):
-        in_dim = 3
-        out_dim = 2
-
+    def _backward(self, in_dim, out_dim):
         mod_ours, mod_theirs = self._forward(in_dim, out_dim)
         
         x, y = self._gen_data(in_dim, out_dim)
@@ -67,56 +64,20 @@ class TestLayers(TestModule):
         loss_ours = loss_fn_ours(out_ours, y)
         loss_theirs = loss_fn_theirs(out_theirs, y)
 
-        dy = loss_ours.backward()
+        dy = loss_fn_ours.backward()
         mod_ours.backward(dy)
         
         loss_theirs.backward()
 
         assert (mod_ours.cache['dw_glob'] - mod_theirs.weight.grad).max().item() < thresh
-
-
-class TestLoss(TestModule):
-    def _init_modules(self):
-        loss_ours = MSELoss()
-        loss_theirs = torch.nn.MSELoss()
-        return loss_ours, loss_theirs
-
-    def _forward(self, in_dim, out_dim):
-        _, y = self._gen_data(in_dim, out_dim)
-        _, y_ = self._gen_data(in_dim, out_dim)
-
-        # Initialize losses
-        loss_ours, loss_theirs = self._init_modules()
-
-        # Compute forward pass
-        out_ours = loss_ours(y_, y)
-
-        y.requires_grad = True
-        y_.requires_grad = True
-        out_theirs = loss_theirs(y_, y)
-        self.out_theirs = out_theirs
-
-        assert (out_ours - out_theirs).item() < thresh
-        return loss_ours, loss_theirs
-
-    def test_forward(self):
+    
+    def test_small_backward(self):
         for _ in range(n_tests):
-            in_dim = random.randint(1, max_dim)
-            out_dim = random.randint(1, max_dim)
-            self._forward(in_dim, out_dim)
-
-    def _backward(self, in_dim, out_dim):
-        loss_ours, loss_theirs = self._forward(in_dim, out_dim)
-        dy = loss_ours.backward()
-
-        self.out_theirs.backward()
-
-        # if we want these properties, we need to define a linear model 
-        # otherwise we could just check the dy is the same ? 
-        assert (loss_ours.cache['dw_glob'] == loss_theirs.weight.grad).all().item(), 'Gradient of weights must be equal'
-        assert (loss_ours.cache['db_glob'] == loss_theirs.bias.grad).all().item(), 'Gradient of bias must be equal'
-
-    def test_backward(self):
+            in_dim = 3
+            out_dim = 2
+            self._backward(in_dim, out_dim)
+    
+    def test_random_backward(self):
         for _ in range(n_tests):
             in_dim = random.randint(1, max_dim)
             out_dim = random.randint(1, max_dim)
@@ -176,8 +137,8 @@ class TestSequential(TestModule):
             assert (m_ours.cache['dw_glob'] - m_theirs.weight.grad).max() < thresh, 'Gradients of the weights must be equal'
             assert (m_ours.cache['db_glob'] - m_theirs.bias.grad).max() < thresh, 'Gradients of the bias must be equal'
 
-    def test_backward_no_activation(self):
-        for _ in range(n_tests):
-            in_dim = random.randint(1, max_dim)
-            out_dim = random.randint(1, max_dim)
-            self._random_backward_no_activation(in_dim, out_dim)
+    #def test_backward_no_activation(self):
+    #    for _ in range(n_tests):
+    #        in_dim = random.randint(1, max_dim)
+    #        out_dim = random.randint(1, max_dim)
+    #        self._random_backward_no_activation(in_dim, out_dim)
