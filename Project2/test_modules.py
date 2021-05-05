@@ -73,7 +73,8 @@ class TestLayers(TestModule):
         loss_theirs = loss_fn_theirs(self.out_theirs, y)
         loss_theirs.backward()
 
-        assert (mod_ours.cache['dw_glob'] - mod_theirs.weight.grad).max().item() < thresh
+        assert (mod_ours.cache['dw_glob'] - mod_theirs.weight.grad).max() < thresh, 'Gradients of the weights must be equal'
+        assert (mod_ours.cache['db_glob'] - mod_theirs.bias.grad).max() < thresh, 'Gradients of the bias must be equal'
 
     def test_backward(self): 
         for _ in range(n_tests):
@@ -95,6 +96,7 @@ class TestLoss(TestModule):
 
         # Compute forward pass
         out_ours = loss_ours(y_, y)
+        self.out_ours = out_ours
 
         y.requires_grad = True
         y_.requires_grad = True
@@ -112,14 +114,14 @@ class TestLoss(TestModule):
 
     def _backward(self, in_dim, out_dim):
         loss_ours, loss_theirs = self._forward(in_dim, out_dim)
-        dy = loss_ours.backward()
+        assert (self.out_ours - self.out_theirs) < thresh, 'Losses should be equal'
 
+        dy = loss_ours.backward()
         self.out_theirs.backward()
 
-        # if we want these properties, we need to define a linear model 
-        # otherwise we could just check the dy is the same ? 
-        assert (loss_ours.cache['dw_glob'] == loss_theirs.weight.grad).all().item(), 'Gradient of weights must be equal'
-        assert (loss_ours.cache['db_glob'] == loss_theirs.bias.grad).all().item(), 'Gradient of bias must be equal'
+        # TODO
+        # check their dy is the same - what is that for the pytorch module?? 
+
 
     def test_backward(self):
         for _ in range(n_tests):
