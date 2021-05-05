@@ -24,7 +24,7 @@ class Sequential(Module):
 
     def backward(self):
         dy = self.loss_fn.backward()
-        for module in self.module.reverse():
+        for module in reversed(self.modules):
             dy = module.backward(dy)
     
     def loss(self, x, y):

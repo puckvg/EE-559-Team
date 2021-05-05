@@ -54,8 +54,8 @@ class Linear(Layer):
         dw_loc = self.cache['dw_loc']
 
         # Compute global gradients
-        self.cache['dx_glob'] = dx_loc.T.mm(dy)
-        self.cache['dw_glob'] = dy.mm(dw_loc.T)
+        self.cache['dx_glob'] = dx_loc.T.matmul(dy)
+        self.cache['dw_glob'] = dy.view(-1, 1).matmul(dw_loc.view(1, -1))
         self.cache['db_glob'] = dy
         return self.cache['dx_glob']
 
