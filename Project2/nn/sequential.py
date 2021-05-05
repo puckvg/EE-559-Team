@@ -7,7 +7,7 @@ class Sequential(Module):
         """ Create a new sequential network.
         Args:
             modules: list(Module). List of modules.
-        """
+        """ 
         super().__init__()
         self.modules = modules
         self.loss_fn = loss_fn
