@@ -39,7 +39,7 @@ class Linear(Layer):
             output: torch.tensor.
         """
         w, b = self.param()
-        return w.matmul(x) + b
+        return w.mv(x) + b
 
     def backward(self, dy):
         """ Compute gradients of input and parameters.
@@ -54,7 +54,7 @@ class Linear(Layer):
         dw_loc = self.cache['dw_loc']
 
         # Compute global gradients
-        self.cache['dx_glob'] = dx_loc.T.matmul(dy)
+        self.cache['dx_glob'] = dx_loc.T.mv(dy)
         self.cache['dw_glob'] = dy.view(-1, 1).matmul(dw_loc.view(1, -1))
         self.cache['db_glob'] = dy
         return self.cache['dx_glob']
