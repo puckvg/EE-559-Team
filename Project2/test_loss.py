@@ -9,7 +9,7 @@ from test_module import TestModule
 n_tests = 10
 max_dim = 5
 max_n_layers = 100
-thresh = 1e-1
+thresh = 1e-3
 
 class TestLoss(TestModule):
     def _init_modules(self):
@@ -28,7 +28,7 @@ class TestLoss(TestModule):
         out_ours = loss_ours(y_, y)
         out_theirs = loss_theirs(y_, y)
 
-        assert (out_ours - out_theirs).item() < thresh
+        assert out_ours.isclose(out_theirs, rtol=thresh).all(), 'Output of loss must be equal'
         return loss_ours, loss_theirs
 
     def test_forward(self):

@@ -9,7 +9,7 @@ from test_module import TestModule
 n_tests = 10
 max_dim = 5
 max_n_layers = 100
-thresh = 1e-1
+thresh = 1e-3
 
 class TestLinear(TestModule):
     def _forward(self, in_dim, out_dim):
@@ -23,7 +23,7 @@ class TestLinear(TestModule):
         out_ours = mod_ours(x)
         out_theirs = mod_theirs(x)
 
-        assert (out_ours == out_theirs).all().item()
+        assert out_ours.isclose(out_theirs, rtol=thresh).all(), 'Outputs of linear must be the same'
         return mod_ours, mod_theirs
 
     def test_random_forward(self):
@@ -53,7 +53,8 @@ class TestLinear(TestModule):
         loss_theirs = loss_fn_theirs(out_theirs, y)
         loss_theirs.backward()
 
-        assert (mod_ours.cache['dw_glob'] - mod_theirs.weight.grad).max().item() < thresh
+        assert mod_ours.cache['dw_glob'].isclose(mod_theirs.weight.grad, rtol=thresh).all(), 'Gradient of weights must be equal'
+        assert mod_ours.cache['db_glob'].isclose(mod_theirs.bias.grad, rtol=thresh).all(), 'Gradient of bias must be equal'
     
     def test_small_backward(self):
         for _ in range(n_tests):

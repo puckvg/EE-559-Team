@@ -9,7 +9,7 @@ from test_module import TestModule
 n_tests = 10
 max_dim = 5
 max_n_layers = 100
-thresh = 1e-1
+thresh = 1e-3
 
 class TestSequential(TestModule):
     def _forward_no_activation(self, in_dim, out_dim, n_layers):
@@ -37,7 +37,7 @@ class TestSequential(TestModule):
         out_ours = network_ours(x)
         out_theirs = network_theirs(x)
 
-        assert (out_ours - out_theirs).max().item() < thresh, 'Outputs must be equal'
+        assert out_ours.isclose(out_theirs, rtol=thresh).all(), 'Outputs must be equal'
         return network_ours, network_theirs
 
     def test_random_forward_no_activation(self):
@@ -62,8 +62,14 @@ class TestSequential(TestModule):
         loss_theirs.backward()
 
         for m_ours, m_theirs in zip(network_ours.modules, list(network_theirs.children())):
-            assert (m_ours.cache['dw_glob'] - m_theirs.weight.grad).max() < thresh, 'Gradients of the weights must be equal'
-            assert (m_ours.cache['db_glob'] - m_theirs.bias.grad).max() < thresh, 'Gradients of the bias must be equal'
+            dw_ours = m_ours.cache['dw_glob']
+            dw_theirs = m_theirs.weight.grad
+
+            db_ours = m_ours.cache['db_glob']
+            db_theirs = m_theirs.bias.grad
+
+            assert db_ours.isclose(db_theirs, rtol=thresh).all(), 'Gradients of the bias must be equal'
+            assert dw_ours.isclose(dw_theirs, rtol=thresh).all(), 'Gradients of the weights must be equal'
 
     def test_backward_single_layer(self):
         for _ in range(n_tests):
