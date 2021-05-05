@@ -31,14 +31,21 @@ class TestModule(TestCase):
 class TestLayers(TestModule):
     def _forward(self, in_dim, out_dim):
         # Generate random test data
-        x, _ = self._gen_data(in_dim, out_dim)
+        x, y = self._gen_data(in_dim, out_dim)
+        self.x = x 
+        self.y = y 
 
         # Initialize modules
         mod_ours, mod_theirs = self._init_modules(in_dim, out_dim)
 
         # Compute forward pass
         out_ours = mod_ours(x)
+        self.out_ours = out_ours
+
+        x.requires_grad = True
+        y.requires_grad = True 
         out_theirs = mod_theirs(x)
+        self.out_theirs = out_theirs
 
         assert (out_ours == out_theirs).all().item()
         return mod_ours, mod_theirs
@@ -49,30 +56,28 @@ class TestLayers(TestModule):
             out_dim = random.randint(1, max_dim)
             self._forward(in_dim, out_dim)
             
-
     def _small_backward(self):
         in_dim = 3
         out_dim = 2
 
         mod_ours, mod_theirs = self._forward(in_dim, out_dim)
         
-        x, y = self._gen_data(in_dim, out_dim)
-        
-        out_ours = mod_ours(x)
-        out_theirs = mod_theirs(x)
-
         loss_fn_ours = MSELoss()
-        loss_fn_theirs = torch.nn.MSELoss()
-
-        loss_ours = loss_fn_ours(out_ours, y)
-        loss_theirs = loss_fn_theirs(out_theirs, y)
-
-        dy = loss_ours.backward()
+        loss_ours = loss_fn_ours(self.out_ours, self.y)
+        dy = loss_fn_ours.backward()
         mod_ours.backward(dy)
-        
+
+        loss_fn_theirs = torch.nn.MSELoss()
+        y = self.y
+        y.requires_grad = True 
+        loss_theirs = loss_fn_theirs(self.out_theirs, y)
         loss_theirs.backward()
 
         assert (mod_ours.cache['dw_glob'] - mod_theirs.weight.grad).max().item() < thresh
+
+    def test_backward(self): 
+        for _ in range(n_tests):
+            self._small_backward()
 
 
 class TestLoss(TestModule):
