@@ -10,8 +10,22 @@ class Activation(Module):
         """
         pass
 
-    def backward(self):
-        raise NotImplementedError
+    def backward(self, dy):
+        """ Compute gradients of input.
+        Args:
+            dy: torch.tensor: Backpropagated gradient from the next layer.
+            
+        Returns:
+            grad: torch.tensor. Gradient
+        """
+        
+        # Read local gradients from cache
+        dx_loc = self.cache['dx_loc']
+        
+        # Compute global gradients
+        self.cache['dx_glob'] = dx_loc.T.mm(dy)
+        
+        return self.cache['dx_glob']
 
     def _grad_local(self, x, y):
         """
@@ -23,6 +37,7 @@ class Activation(Module):
     
     
 class ReLU(Activation):
+    " ReLU activation function "
     
     def __init__(self):
         super().__init__()
@@ -33,20 +48,41 @@ class ReLU(Activation):
             x: torch.tensor. Input tensor.
         
         Returns:
-            out: torch.tensor. Output tensor
+            out: torch.tensor. Output tensor.
         """
         out = f.relu(x)
         return out
     
-    def backward(self):
-        """ Compute gradients of input.
+    def _grad_local(self, x):
+        """ Compute local gradients of ReLU with respect to input and parameters. Store the gradients in the cache for the backward step.
         Args:
             x: torch.tensor. Input tensor.
-            
-        Returns:
-            grad: torch.tensor. Gradient
         """
-        grad = f.d_relu(x)
-        return grad
         
+        self.cache['dx_loc'] = f.d_relu(x)
+        
+
+class Tanh(Activation):
+    " Tanh activation function "
+    
+    def __init__(self):
+        super().__init__()
+        
+    def forward(self, x):
+        """ Compute the activation.
+        Args:
+            x: torch.tensor. Input tensor.
+        
+        Returns:
+            out: torch.tensor. Output tensor.
+        """
+        out = f.tanh(x)
+        return out
+    
+    def _grad_local(self, x):
+        """ Compute local gradients of ReLU with respect to input and parameters. Store the gradients in the cache for the backward step.
+        Args:
+            x: torch.tensor. Input tensor.
+        """
+        self.cache['dx_loc'] = f.d_tanh(x)
     
