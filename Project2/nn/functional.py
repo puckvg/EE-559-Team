@@ -1,7 +1,6 @@
 import torch
 
-""" The functional.py should contain the concrete implementations of the specific loss functions. """
-# IT ALSO SHOULD CONTAIN OTHER USEFUL FUNCTIONS RIGHT? 
+""" The functional.py contains the concrete implementations of specific. """
 
 def mse(x, y, reduction='mean'):
     """ Compute the mean squared error.
