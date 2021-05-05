@@ -90,6 +90,10 @@ class TestLoss(TestModule):
         assert (loss_ours.cache['dw_glob'] == loss_theirs.weight.grad).all().item(), 'Gradient of weights must be equal'
         assert (loss_ours.cache['db_glob'] == loss_theirs.bias.grad).all().item(), 'Gradient of bias must be equal'
 
+    def test_backward(self):
+        for _ in range(n_tests):
+            self._random_backward()
+
 
 class TestSequential(TestModule):
     def _random_forward_no_activation(self):
