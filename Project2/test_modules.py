@@ -85,8 +85,7 @@ class TestLinear(TestModule):
 
 
 class TestSequential(TestModule):
-    def _random_forward_no_activation(self, in_dim, out_dim):
-        n_layers = random.randint(1, max_n_layers)
+    def _forward_no_activation(self, in_dim, out_dim, n_layers):
         hidden_in = in_dim
         hidden_out = random.randint(1, max_dim)
         
@@ -114,14 +113,15 @@ class TestSequential(TestModule):
         assert (out_ours - out_theirs).max().item() < thresh, 'Outputs must be equal'
         return network_ours, network_theirs
 
-    def test_forward_no_activation(self):
+    def test_random_forward_no_activation(self):
         for _ in range(n_tests):
             in_dim = random.randint(1, max_dim)
             out_dim = random.randint(1, max_dim)
-            self._random_forward_no_activation(in_dim, out_dim)
+            n_layers = random.randint(1, max_n_layers)
+            self._forward_no_activation(in_dim, out_dim, n_layers)
 
-    def _random_backward_no_activation(self, in_dim, out_dim):
-        network_ours, network_theirs = self._random_forward_no_activation(in_dim, out_dim)
+    def _backward_no_activation(self, in_dim, out_dim, n_layers):
+        network_ours, network_theirs = self._forward_no_activation(in_dim, out_dim, n_layers)
         x, y = self._gen_data(in_dim, out_dim)
 
         out_ours = network_ours(x)
@@ -137,8 +137,23 @@ class TestSequential(TestModule):
             assert (m_ours.cache['dw_glob'] - m_theirs.weight.grad).max() < thresh, 'Gradients of the weights must be equal'
             assert (m_ours.cache['db_glob'] - m_theirs.bias.grad).max() < thresh, 'Gradients of the bias must be equal'
 
-    #def test_backward_no_activation(self):
-    #    for _ in range(n_tests):
-    #        in_dim = random.randint(1, max_dim)
-    #        out_dim = random.randint(1, max_dim)
-    #        self._random_backward_no_activation(in_dim, out_dim)
+    def test_backward_single_layer(self):
+        for _ in range(n_tests):
+            in_dim = random.randint(1, max_dim)
+            out_dim = random.randint(1, max_dim)
+            self._backward_no_activation(in_dim, out_dim, 1)
+
+    def test_backward_n_layers(self):
+        n = 3
+        for _ in range(n_tests):
+            in_dim = random.randint(1, max_dim)
+            out_dim = random.randint(1, max_dim)
+            self._backward_no_activation(in_dim, out_dim, n)
+
+    def test_backward_random_layers(self):
+        for _ in range(n_tests):
+            in_dim = random.randint(1, max_dim)
+            out_dim = random.randint(1, max_dim)
+            n_layers = random.randint(1, max_n_layers)
+            print(n_layers)
+            self._backward_no_activation(in_dim, out_dim, n_layers)
