@@ -6,9 +6,9 @@ from nn.sequential import Sequential
 
 
 n_tests = 10
-max_dim = 100
-max_n_layers = 10
-thresh = 1e-3
+max_dim = 5
+max_n_layers = 100
+thresh = 1e-1
 
 class TestModule(TestCase):
     def _gen_data(self, in_dim, out_dim):
@@ -130,7 +130,7 @@ class TestSequential(TestModule):
         modules_ours.append(m_ours)
         modules_theirs.append(m_theirs)
 
-        x, y = self._gen_data(in_dim, out_dim)
+        x, _ = self._gen_data(in_dim, out_dim)
 
         network_ours = Sequential(modules_ours, MSELoss())
         network_theirs = torch.nn.Sequential(*modules_theirs)
@@ -161,6 +161,7 @@ class TestSequential(TestModule):
 
         network_ours.backward()
         loss_theirs.backward()
+
         for m_ours, m_theirs in zip(network_ours.modules, list(network_theirs.children())):
             assert (m_ours.cache['dw_glob'] - m_theirs.weight.grad).max() < thresh, 'Gradients of the weights must be equal'
             assert (m_ours.cache['db_glob'] - m_theirs.bias.grad).max() < thresh, 'Gradients of the bias must be equal'
@@ -183,5 +184,4 @@ class TestSequential(TestModule):
             in_dim = random.randint(1, max_dim)
             out_dim = random.randint(1, max_dim)
             n_layers = random.randint(1, max_n_layers)
-            print(n_layers)
             self._backward_no_activation(in_dim, out_dim, n_layers)
