@@ -2,9 +2,11 @@ from unittest import TestCase
 import torch, random
 from test_module import TestModule
 from nn.activation import *
+from nn.loss import *
 
 n_tests = 10
 thresh = 1e-3
+max_dim = 100
 
 class TestActivation(TestModule):
     def _forward(self, dim, name):
@@ -12,7 +14,7 @@ class TestActivation(TestModule):
         Forward test function for activation modules
         """
         # Generate random test data
-        x, _ = self._gen_data(dim, dim)
+        x, y = self._gen_data(dim, dim)
         
         # Initialization
         act_ours, act_theirs = self._init_activations(name)
@@ -23,18 +25,51 @@ class TestActivation(TestModule):
         
         # Check output
         assert out_ours.isclose(out_theirs, rtol=thresh).all(), 'Outputs of linear must be the same'
-        return out_ours, out_theirs
+        return x, y, out_ours, out_theirs, act_ours, act_theirs
         
+        
+    def test_relu_forward(self):
+        """
+        Testing relu activation forward
+        """
+        for _ in range(n_tests):
+            dim = random.randint(1, max_dim)
+            self._forward(dim, 'relu')
+
+
+    def test_tanh_forward(self):
+        """
+        Testing tanh activation forwards
+        """
+        for _ in range(n_tests):
+            dim = random.randint(1, max_dim)
+            self._forward(dim, 'tanh')
+
+
     def _backward(self, dim, name):
         """
         Backward test function for activation modules
         """
-        # Generate random test data
-        x, _ = self._gen_data(dim, dim)
+        # Forward pass
+        x, y, out_ours, out_theirs, act_ours, act_theirs = self._forward(dim, name)
         
-        # Initialization
-        act_ours, act_theirs = self._init_activations(name)
+        # Initialize losses
+        loss_fn_ours = MSELoss()
+        loss_fn_theirs = torch.nn.MSELoss()
         
+        # Calculate losses
+        loss_ours = loss_fn_ours(out_ours, y)
+        loss_theirs = loss_fn_theirs(out_theirs, y)
+        
+        # Our backwards
+        dy = loss_fn_ours.backward()
+        act_ours.backward(dy)
+        
+        # Their backwards
+        loss_theirs.backward()
+        
+        # Compare
+        "BUT HOW???"
         
         
     def _init_activations(self, name):
@@ -51,8 +86,3 @@ class TestActivation(TestModule):
             raise NotImplementedError
         return act_ours, act_theirs
 
-
-
-
-testactivation = TestActivation()
-testactivation._forward(dim = 3, name='relu')
