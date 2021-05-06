@@ -80,7 +80,7 @@ class Tanh(Activation):
         return out
     
     def _grad_local(self, x):
-        """ Compute local gradients of ReLU with respect to input and parameters. Store the gradients in the cache for the backward step.
+        """ Compute local gradients of Tanh with respect to input and parameters. Store the gradients in the cache for the backward step.
         Args:
             x: torch.tensor. Input tensor.
         """
