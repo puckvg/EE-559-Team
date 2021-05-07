@@ -112,8 +112,9 @@ class Linear(Layer):
             self.cache['w'] = w
             self.cache['b'] = b
             
-        if optim == 'adam':
+        elif optim == 'adam':
             w, b = self.param()
+            t = self.cache['t']
 
             # momentum 
             m_dw = beta_1 * self.cache['m_dw'] + (1 - beta_1) * self.cache['dw_glob'] 
@@ -121,7 +122,7 @@ class Linear(Layer):
 
             # rms 
             v_dw = beta_2 * self.cache['v_dw'] + (1 - beta_2) * self.cache['dw_glob']**2
-            v_db = beta_2 * self.cache['v_db'] + (1 - beta_2) * self.cache['db-glob']
+            v_db = beta_2 * self.cache['v_db'] + (1 - beta_2) * self.cache['db_glob']
 
             # bias correction 
             m_dw_corr = m_dw / (1 - beta_1**t)
@@ -129,8 +130,8 @@ class Linear(Layer):
             v_dw_corr = v_dw / (1 - beta_2**t)
             v_db_corr = v_db / (1 - beta_2**t)
 
-            w -= lr * (m_dw_corr / (np.sqrt(v_dw_corr) + epsilon))
-            b -= lr * (m_db_corr / (np.sqrt(v_db_corr) + epsilon))
+            w -= lr * (m_dw_corr / (torch.sqrt(v_dw_corr) + epsilon))
+            b -= lr * (m_db_corr / (torch.sqrt(v_db_corr) + epsilon))
 
             self.cache['m_dw'] = m_dw
             self.cache['m_db'] = m_db
@@ -140,4 +141,5 @@ class Linear(Layer):
             self.cache['w'] = w
             self.cache['b'] = b
             
-        
+        else:
+            raise NotImplementedError
