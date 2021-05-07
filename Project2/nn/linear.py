@@ -26,6 +26,8 @@ class Linear(Layer):
             output: Linear
         """
         super().__init__()
+        self.dim_in = dim_in
+        self.dim_out = dim_out
         
         # Initialize parameters
         self.cache['w'] = torch.empty((dim_out, dim_in)).normal_()
@@ -35,6 +37,9 @@ class Linear(Layer):
         self.cache['t_adam'] = 0
         self.cache['m_adam'] = 0
         self.cache['v_adam'] = 0
+
+    def __str__(self):
+        return f"Linear({self.dim_in}, {self.dim_out})"
 
     def forward(self, x):
         """ Calculate output.

@@ -42,6 +42,9 @@ class ReLU(Activation):
     
     def __init__(self):
         super().__init__()
+
+    def __str__(self):
+        return "ReLU()"
         
     def forward(self, x):
         """ Compute the activation.
@@ -68,6 +71,9 @@ class Tanh(Activation):
     
     def __init__(self):
         super().__init__()
+
+    def __str__(self):
+        return "Tanh"
         
     def forward(self, x):
         """ Compute the activation.

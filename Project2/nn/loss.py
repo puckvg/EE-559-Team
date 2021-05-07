@@ -35,6 +35,9 @@ class MSELoss(Loss):
     def __init__(self):
         super().__init__()
 
+    def __str__(self):
+        return "MSELoss()"
+
     def forward(self, x, y):
         """ Compute the mean squared error.
         Args:

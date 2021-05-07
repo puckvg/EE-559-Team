@@ -12,6 +12,13 @@ class Sequential(Module):
         self.modules = modules
         self.loss_fn = loss_fn
 
+    def print(self):
+        """ print model architecture"""
+        print("Sequential(")
+        for module in self.modules: 
+            print(module)
+        print(")")
+
     def __call__(self, x):
         out = self.forward(x)
         return out
@@ -43,4 +50,5 @@ class Sequential(Module):
         """
         for module in self.modules:
             module._update_params(optim, lr)
+
 
