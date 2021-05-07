@@ -1,0 +1,55 @@
+from unittest import TestCase
+from test_module import TestModule
+import torch 
+from nn.loss import MSELoss
+
+n_tests = 10 
+max_dim = 5 
+max_n_layers = 100
+thresh = 1e-3 
+
+class TestSGD(TestModule):
+    def _step(self, in_dim, out_dim, lr):
+        x, y = self._gen_data(in_dim, out_dim)
+
+        # Initialize modules 
+        mod_ours, mod_theirs = self._init_modules(in_dim, out_dim)
+
+        # Initialize optimizers 
+        opt_ours = 'sgd'
+        opt_theirs = torch.optim.SGD(mod_theirs.parameters(), lr=lr,
+                                    momentum=0)
+
+        # Initialize loss 
+        loss_fn_ours = MSELoss()
+        loss_fn_theirs = torch.nn.MSELoss()
+
+        mod_theirs.zero_grad()
+
+        # compute forward pass
+        out_ours = mod_ours(x)
+        out_theirs = mod_theirs(x)
+
+        # loss 
+        loss_ours = loss_fn_ours(out_ours, y)
+        loss_theirs = loss_fn_theirs(out_theirs, y)
+
+        # backward
+        dy = loss_fn_ours.backward()
+        mod_ours.backward(dy)
+
+        loss_theirs.backward()
+
+        # opt 
+        opt_theirs.step()
+        mod_ours._update_params(optim=opt_ours, lr=lr)
+
+        assert mod_ours.cache['w'].isclose(mod_theirs.weight, rtol=thresh).all(), 'weights after SGD step must be the same'
+        assert mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all(), 'bias after SGD step must be the same'
+
+    def test_optim_step(self):
+        for _ in range(n_tests):
+            in_dim = 3
+            out_dim = 2
+            lr = 0.01 
+            self._step(in_dim, out_dim, lr)
