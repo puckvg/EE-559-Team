@@ -14,6 +14,11 @@ class TestModule(TestCase):
         y = torch.empty((out_dim)).normal_()
         return x, y
 
+    def _gen_batch_data(self, batch_size, in_dim, out_dim):
+        x = torch.empty((batch_size, in_dim)).normal_()
+        y = torch.empty((batch_size, out_dim)).normal_()
+        return x, y
+
     def _init_modules(self, in_dim, out_dim):
         mod_ours = Linear(in_dim, out_dim)
         mod_theirs = torch.nn.Linear(in_dim, out_dim)
