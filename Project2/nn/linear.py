@@ -30,6 +30,11 @@ class Linear(Layer):
         # Initialize parameters
         self.cache['w'] = torch.empty((dim_out, dim_in)).normal_()
         self.cache['b'] = torch.empty((dim_out, )).normal_()
+        
+        # Initialize optimizer params (only needed for ADAM optimizer)
+        self.cache['t_adam'] = 0
+        self.cache['m_adam'] = 0
+        self.cache['v_adam'] = 0
 
     def forward(self, x):
         """ Calculate output.
@@ -91,3 +96,42 @@ class Linear(Layer):
 
             self.cache['w'] = w
             self.cache['b'] = b
+            
+        if optim == 'adam':
+            # TODO:
+            # - code below only for one-dimensional gradients, it still has to be adapted to multiple dimensions
+            
+            # Hypterparameters
+            beta_1 = 0.9
+            beta_2 = 0.999
+            epsilon = 1e-08
+            
+            # Get iteration number from cache
+            t = self.cache['t_adam']
+            
+            # Get moments from cache
+            m = self.cache['m_adam']
+            v = self.cache['v_adam']
+            
+            # Get gradients and parameters
+            dw_glob, db_glob = self.cache['dw_glob'], self.cache['db_glob']
+            w, b = self.param()
+            
+            # Assemble gradients and parameters (merge bias and weights)
+            # TODO
+            g = [] # dw_glob + db_glob
+            w = [] # w + b
+            
+            # Update moments
+            m = beta_1 * m + (1 - beta_1) * g
+            v = beta_2 * v + (1 - beta_2) * g.pow(2)
+            
+            m_hat = m / (1 - beta_1.pow(t))
+            v_hat = v / (1 - beta_2.pow(t))
+            
+            # Update parameters
+            w = w - lr * m_hat / (v_hat.sqrt() + epsilon)
+            
+            # Split parameters into weight  and bias
+            # TODO
+        
