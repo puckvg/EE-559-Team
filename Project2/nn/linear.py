@@ -34,9 +34,14 @@ class Linear(Layer):
         self.cache['b'] = torch.empty((dim_out, )).normal_()
         
         # Initialize optimizer params (only needed for ADAM optimizer)
-        self.cache['t_adam'] = 0
-        self.cache['m_adam'] = 0
-        self.cache['v_adam'] = 0
+        # momentum
+        self.cache['m_dw'] = 0.
+        self.cache['m_db'] = 0.
+        # rms 
+        self.cache['v_dw'] = 0.
+        self.cache['v_db'] = 0.
+        # timestep 
+        self.cache['t'] = 1
 
     def __str__(self):
         return f"Linear({self.dim_in}, {self.dim_out})"
@@ -89,9 +94,14 @@ class Linear(Layer):
         self.cache['dw_loc'] = x
         self.cache['db_loc'] = 1
     
-    def _update_params(self, optim, lr):
+    def _update_params(self, optim, lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=1e-8):
         """ Update the parameters of this module according to the opimizer
-            and the cached gradients """
+            and the cached gradients 
+            Args:
+            lr : step size (for all optimizers)
+            beta_1 : first order exp decay (for adam)
+            beta_2 : second order exp decay (for adam)
+            epsilon : small param to prevent zero division (for adam)"""
         
         if optim == 'sgd':
             w, b = self.param()
@@ -103,40 +113,31 @@ class Linear(Layer):
             self.cache['b'] = b
             
         if optim == 'adam':
-            # TODO:
-            # - code below only for one-dimensional gradients, it still has to be adapted to multiple dimensions
-            
-            # Hypterparameters
-            beta_1 = 0.9
-            beta_2 = 0.999
-            epsilon = 1e-08
-            
-            # Get iteration number from cache
-            t = self.cache['t_adam']
-            
-            # Get moments from cache
-            m = self.cache['m_adam']
-            v = self.cache['v_adam']
-            
-            # Get gradients and parameters
-            dw_glob, db_glob = self.cache['dw_glob'], self.cache['db_glob']
             w, b = self.param()
+
+            # momentum 
+            m_dw = beta_1 * self.cache['m_dw'] + (1 - beta_1) * self.cache['dw_glob'] 
+            m_db = beta_1 * self.cache['m_db'] + (1 - beta_1) * self.cache['db_glob']
+
+            # rms 
+            v_dw = beta_2 * self.cache['v_dw'] + (1 - beta_2) * self.cache['dw_glob']**2
+            v_db = beta_2 * self.cache['v_db'] + (1 - beta_2) * self.cache['db-glob']
+
+            # bias correction 
+            m_dw_corr = m_dw / (1 - beta_1**t)
+            m_db_corr = m_db / (1 - beta_1**t)
+            v_dw_corr = v_dw / (1 - beta_2**t)
+            v_db_corr = v_db / (1 - beta_2**t)
+
+            w -= lr * (m_dw_corr / (np.sqrt(v_dw_corr) + epsilon))
+            b -= lr * (m_db_corr / (np.sqrt(v_db_corr) + epsilon))
+
+            self.cache['m_dw'] = m_dw
+            self.cache['m_db'] = m_db
+            self.cache['v_dw'] = v_dw 
+            self.cache['v_db'] = v_db
+            self.cache['t'] += 1
+            self.cache['w'] = w
+            self.cache['b'] = b
             
-            # Assemble gradients and parameters (merge bias and weights)
-            # TODO
-            g = [] # dw_glob + db_glob
-            w = [] # w + b
-            
-            # Update moments
-            m = beta_1 * m + (1 - beta_1) * g
-            v = beta_2 * v + (1 - beta_2) * g.pow(2)
-            
-            m_hat = m / (1 - beta_1.pow(t))
-            v_hat = v / (1 - beta_2.pow(t))
-            
-            # Update parameters
-            w = w - lr * m_hat / (v_hat.sqrt() + epsilon)
-            
-            # Split parameters into weight  and bias
-            # TODO
         
