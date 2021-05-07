@@ -14,10 +14,10 @@ class Sequential(Module):
 
     def print(self):
         """ print model architecture"""
-        print("Sequential(")
+        print("Sequential((")
         for module in self.modules: 
-            print(module)
-        print(")")
+            print(f"{module}, ")
+        print("))")
 
     def __call__(self, x):
         out = self.forward(x)
