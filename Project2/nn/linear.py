@@ -29,7 +29,7 @@ class Linear(Layer):
         
         # Initialize parameters
         self.cache['w'] = torch.empty((dim_out, dim_in)).normal_()
-        self.cache['b'] = torch.empty((dim_out, )).normal_()
+        self.cache['b'] = torch.empty((dim_out)).normal_()
         
         # Initialize optimizer params (only needed for ADAM optimizer)
         self.cache['t_adam'] = 0
@@ -39,12 +39,17 @@ class Linear(Layer):
     def forward(self, x):
         """ Calculate output.
         Args:
-            x: torch.tensor. Input tensor.
+            x: torch.tensor. Input tensor of size (batch_size, input_dim)
         Returns:
-            output: torch.tensor.
+            output: torch.tensor. Output tensor of size (batch_size, output_dim)
         """
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        elif len(x.shape) >= 3:
+            raise NotImplementedError("Linear not implement for imput of 3 or more dimensions!")
+        
         w, b = self.param()
-        return w.mv(x) + b
+        return w.mm(x.T).T + b
 
     def backward(self, dy):
         """ Compute gradients of input and parameters.
