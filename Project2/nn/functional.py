@@ -11,7 +11,15 @@ def mse(x, y, reduction='mean'):
         Returns:
             ms_error: float. Mean squared error.
     """
-    ms_error = (x- y).norm(p=2).pow(2) / y.size(0)
+    batch_size = x.shape[0]
+    feature_dim = x.shape[1]
+    
+    # Samplewise MSE (vector)
+    ms_error = (x - y).pow(2).sum(dim = 1) / feature_dim
+    
+    # Batchwise Average (scalar)
+    ms_error = ms_error.sum(dim=0) / batch_size
+    
     return ms_error
 
 
@@ -24,7 +32,7 @@ def d_mse(x, y, reduction='mean'):
         Returns:
             d_mse: float. Gradient of mean squared error.
     """
-    d_mse = 2*(x - y) / y.size(0)
+    d_mse = 2*(x - y) / (y.size(0) * y.size(1))
     return d_mse
 
 

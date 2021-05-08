@@ -63,10 +63,22 @@ class Linear(Layer):
         dx_loc = self.cache['dx_loc']
         dw_loc = self.cache['dw_loc']
 
+        """
+        Notes Felix:
+        dx_glob = dL/dx = dL/dY W.T
+        dw_glob = dL/dW = X.T dL/dY
+        
+        dx_loc = w
+        dw_loc = x
+        db_loc = 1
+        
+        Source: https://web.eecs.umich.edu/~justincj/teaching/eecs442/notes/linear-backprop.html
+        """
+                
         # Compute global gradients
-        self.cache['dx_glob'] = dx_loc.T.mv(dy)
-        self.cache['dw_glob'] = dy.view(-1, 1).matmul(dw_loc.view(1, -1))
-        self.cache['db_glob'] = dy
+        self.cache['dx_glob'] = dy.mm(dx_loc).T
+        self.cache['dw_glob'] = dw_loc.T.mm(dy).T
+        self.cache['db_glob'] = dy.sum(dim=0)
         return self.cache['dx_glob']
 
     def param(self):
