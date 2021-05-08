@@ -75,6 +75,13 @@ class Linear(Layer):
         Source: https://web.eecs.umich.edu/~justincj/teaching/eecs442/notes/linear-backprop.html
         """
         
+        # Fast fix for dy dimension problem
+        """ There is something I haven't figured out with the dimensions yet: I belive that the dimension
+        of the loss function is somehow wrong or incompatible. This fix worked for me, but we should try 
+        to understand the problem and fix it properly."""
+        if dy.size(1) != dx_loc.size(0): dy = dy.T
+        assert dy.size(1) == dx_loc.size(0), "Problem with backprop gradient dimensions"
+        
         # Compute global gradients
         self.cache['dx_glob'] = dy.mm(dx_loc).T
         self.cache['dw_glob'] = dw_loc.T.mm(dy).T

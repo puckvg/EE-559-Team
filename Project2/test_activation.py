@@ -8,6 +8,7 @@ from nn.sequential import Sequential
 n_tests = 10
 thresh = 1e-3
 max_dim = 100
+max_batch_size = 100
 
 class TestActivation(TestModule):
     def _init_activations(self, name):
@@ -25,12 +26,12 @@ class TestActivation(TestModule):
         return act_ours, act_theirs
     
     
-    def _forward(self, dim, name):
+    def _forward(self, batch_size, dim, name):
         """
         Forward test function for activation modules
         """
         # Generate random test data
-        x, y = self._gen_data(dim, dim)
+        x, y = self._gen_batch_data(batch_size, dim, dim)
         
         # Initialization
         act_ours, act_theirs = self._init_activations(name)
@@ -43,7 +44,7 @@ class TestActivation(TestModule):
         assert out_ours.isclose(out_theirs, rtol=thresh).all(), 'Outputs of linear must be the same'
         
         
-    def _backward(self, in_dim, out_dim, name):
+    def _backward(self, batch_size, in_dim, out_dim, name):
         """
         Backward test function for activation modules
         
@@ -52,7 +53,7 @@ class TestActivation(TestModule):
         """
         
         # Create data
-        x, y = self._gen_data(in_dim, out_dim)
+        x, y = self._gen_batch_data(batch_size, in_dim, out_dim)
         
         # Creating sequential
         module_ours, module_theirs = self._init_modules(in_dim, out_dim)
@@ -88,6 +89,10 @@ class TestActivation(TestModule):
         db_ours = m_ours[0].cache['db_glob']
         db_theirs = m_theirs.bias.grad
         
+        if db_ours.isclose(db_theirs, rtol=thresh).all() == False:
+            print(dw_ours)
+            print(dw_theirs)
+        
         assert db_ours.isclose(db_theirs, rtol=thresh).all(), 'Gradients of the bias must be equal'
         assert dw_ours.isclose(dw_theirs, rtol=thresh).all(), 'Gradients of the weights must be equal'
         
@@ -98,7 +103,8 @@ class TestActivation(TestModule):
         """
         for _ in range(n_tests):
             dim = random.randint(1, max_dim)
-            self._forward(dim, 'relu')
+            batch_size = random.randint(1, max_batch_size)
+            self._forward(batch_size, dim, 'relu')
 
 
     def test_tanh_forward(self):
@@ -107,7 +113,8 @@ class TestActivation(TestModule):
         """
         for _ in range(n_tests):
             dim = random.randint(1, max_dim)
-            self._forward(dim, 'tanh')
+            batch_size = random.randint(1, max_batch_size)
+            self._forward(batch_size, dim, 'tanh')
 
     
     def test_relu_backward(self):
@@ -118,7 +125,8 @@ class TestActivation(TestModule):
         for _ in range(n_tests):
             in_dim = random.randint(1, max_dim)
             out_dim = random.randint(1, max_dim)
-            self._backward(in_dim, out_dim, 'relu')
+            batch_size = random.randint(1, max_batch_size)
+            self._backward(batch_size, in_dim, out_dim, 'relu')
             
             
     def test_tanh_backward(self):
@@ -129,12 +137,6 @@ class TestActivation(TestModule):
         for _ in range(n_tests):
             in_dim = random.randint(1, max_dim)
             out_dim = random.randint(1, max_dim)
-            self._backward(in_dim, out_dim, 'tanh')
+            batch_size = random.randint(1, max_batch_size)
+            self._backward(batch_size, in_dim, out_dim, 'tanh')
             
-        
-        
-    
-
-
-test_act = TestActivation()
-test_act.test_tanh_backward()

@@ -38,10 +38,11 @@ class TestSequential(TestModule):
         out_ours = network_ours(x)
         out_theirs = network_theirs(x)
 
-        # print("\nOur output:")
-        # print(out_ours)
-        # print("\nTheirs output:")
-        # print(out_theirs) 
+        if out_ours.isclose(out_theirs, rtol=thresh).all() == False:
+            print("\nOur output:")
+            print(out_ours)
+            print("\nTheirs output:")
+            print(out_theirs) 
         
         assert out_ours.isclose(out_theirs, rtol=thresh).all(), 'Outputs must be equal'
         return network_ours, network_theirs
@@ -75,6 +76,10 @@ class TestSequential(TestModule):
             db_ours = m_ours.cache['db_glob']
             db_theirs = m_theirs.bias.grad
 
+            if db_ours.isclose(db_theirs, rtol=thresh).all() == False:
+                print(db_ours)
+                print(db_theirs)
+            
             assert db_ours.isclose(db_theirs, rtol=thresh).all(), 'Gradients of the bias must be equal'
             assert dw_ours.isclose(dw_theirs, rtol=thresh).all(), 'Gradients of the weights must be equal'
 
@@ -82,7 +87,8 @@ class TestSequential(TestModule):
         for _ in range(n_tests):
             in_dim = random.randint(1, max_dim)
             out_dim = random.randint(1, max_dim)
-            self._backward_no_activation(in_dim, out_dim, 1)
+            batch_size = random.randint(1, max_batch_size)
+            self._backward_no_activation(batch_size, in_dim, out_dim, 1)
 
     def test_backward_n_layers(self):
         n = 3
@@ -99,4 +105,3 @@ class TestSequential(TestModule):
             n_layers = random.randint(1, max_n_layers)
             batch_size = random.randint(1, max_batch_size)
             self._backward_no_activation(batch_size, in_dim, out_dim, n_layers)
-            

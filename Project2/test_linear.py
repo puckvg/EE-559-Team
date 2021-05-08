@@ -35,7 +35,7 @@ class TestLinear(TestModule):
             self._forward(batch_size, in_dim, out_dim)
     
     def _backward(self, batch_size, in_dim, out_dim):
-        mod_ours, mod_theirs = self._forward(batch_size, in_dim, out_dim)
+        mod_ours, mod_theirs = self._init_modules(in_dim, out_dim)
         
         loss_fn_ours = MSELoss()
         loss_fn_theirs = torch.nn.MSELoss()
@@ -48,6 +48,8 @@ class TestLinear(TestModule):
         loss_ours = loss_fn_ours(out_ours, y)
         loss_theirs = loss_fn_theirs(out_theirs, y)
 
+        assert loss_ours.isclose(loss_theirs, rtol=thresh), 'Loss must be equal'
+        
         dy = loss_fn_ours.backward()
         mod_ours.backward(dy)
 
@@ -55,6 +57,10 @@ class TestLinear(TestModule):
         loss_theirs = loss_fn_theirs(out_theirs, y)
         loss_theirs.backward()
 
+        if mod_ours.cache['dw_glob'].isclose(mod_theirs.weight.grad, rtol=thresh).all() == False:
+            print(mod_ours.cache['dw_glob']) 
+            print(mod_theirs.weight.grad)       
+        
         assert mod_ours.cache['dw_glob'].isclose(mod_theirs.weight.grad, rtol=thresh).all(), 'Gradient of weights must be equal'
         assert mod_ours.cache['db_glob'].isclose(mod_theirs.bias.grad, rtol=thresh).all(), 'Gradient of bias must be equal'
     
