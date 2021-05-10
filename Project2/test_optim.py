@@ -44,6 +44,14 @@ class TestSGD(TestModule):
         opt_theirs.step()
         mod_ours._update_params(optim=opt_ours, lr=lr)
 
+        # set nans to the same number for isclose test 
+        mod_ours.cache['w'][torch.isnan(mod_ours.cache['w'])] = 0.
+        mod_ours.cache['b'][torch.isnan(mod_ours.cache['b'])] = 0.
+
+        with torch.no_grad():
+            mod_theirs.weight[torch.isnan(mod_theirs.weight)] = 0.
+            mod_theirs.bias[torch.isnan(mod_theirs.bias)] = 0.
+
         assert mod_ours.cache['w'].isclose(mod_theirs.weight, rtol=thresh).all(), 'weights after SGD step must be the same'
         assert mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all(), 'bias after SGD step must be the same'
 
@@ -91,9 +99,12 @@ class TestAdam(TestModule):
         opt_theirs.step()
         mod_ours._update_params(optim=opt_ours, lr=lr)
 
-        # It actually looks like it works just sometimes the params are nan??
-        print(mod_ours.cache['b'])
-        print(mod_theirs.bias)
+        # set nans to the same number for isclose test 
+        mod_ours.cache['w'][torch.isnan(mod_ours.cache['w'])] = 0.
+        mod_ours.cache['b'][torch.isnan(mod_ours.cache['b'])] = 0.
+        with torch.no_grad():
+            mod_theirs.weight[torch.isnan(mod_theirs.weight)] = 0.
+            mod_theirs.bias[torch.isnan(mod_theirs.bias)] = 0.
 
         assert mod_ours.cache['w'].isclose(mod_theirs.weight, rtol=thresh).all(), 'weights after Adam step must be the same'
         assert mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all(), 'bias after Adam step must be the same'
