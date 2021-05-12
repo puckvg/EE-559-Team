@@ -51,12 +51,17 @@ class Linear(Layer):
     def forward(self, x):
         """ Calculate output.
         Args:
-            x: torch.tensor. Input tensor.
+            x: torch.tensor. Input tensor of size (batch_size, input_dim)
         Returns:
-            output: torch.tensor.
+            output: torch.tensor. Output tensor of size (batch_size, output_dim)
         """
+        if len(x.shape) == 1:
+            x = x.reshape(1, -1)
+        elif len(x.shape) >= 3:
+            raise NotImplementedError("Linear not implement for imput of 3 or more dimensions!")
+        
         w, b = self.param()
-        return w.mv(x) + b
+        return w.mm(x.T).T + b
 
     def backward(self, dy):
         """ Compute gradients of input and parameters.
@@ -70,10 +75,30 @@ class Linear(Layer):
         dx_loc = self.cache['dx_loc']
         dw_loc = self.cache['dw_loc']
 
+        """
+        Notes Felix:
+        dx_glob = dL/dx = dL/dY W.T         [same size as x]
+        dw_glob = dL/dW = X.T dL/dY         [same size as w]
+        
+        dx_loc = w
+        dw_loc = x
+        db_loc = 1
+        
+        Source: https://web.eecs.umich.edu/~justincj/teaching/eecs442/notes/linear-backprop.html
+        """
+        
+        # Fast fix for dy dimension problem
+        """ There is something I haven't figured out with the dimensions yet: I belive that the dimension
+        of the loss function is somehow wrong or incompatible. This fix worked for me, but we should try 
+        to understand the problem and fix it properly."""
+        if dy.size(1) != dx_loc.size(0): dy = dy.T
+        assert dy.size(1) == dx_loc.size(0), "Problem with backprop gradient dimensions"
+        
         # Compute global gradients
-        self.cache['dx_glob'] = dx_loc.T.mv(dy)
-        self.cache['dw_glob'] = dy.view(-1, 1).matmul(dw_loc.view(1, -1))
-        self.cache['db_glob'] = dy
+        self.cache['dx_glob'] = dy.mm(dx_loc).T
+        self.cache['dw_glob'] = dw_loc.T.mm(dy).T
+        self.cache['db_glob'] = dy.sum(dim=0)
+        
         return self.cache['dx_glob']
 
     def param(self):

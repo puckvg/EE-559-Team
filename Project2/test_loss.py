@@ -10,6 +10,7 @@ n_tests = 10
 max_dim = 5
 max_n_layers = 100
 thresh = 1e-3
+max_batch_size = 100
 
 class TestLoss(TestModule):
     def _init_modules(self):
@@ -17,9 +18,9 @@ class TestLoss(TestModule):
         loss_theirs = torch.nn.MSELoss()
         return loss_ours, loss_theirs
 
-    def _forward(self, in_dim, out_dim):
-        _, y = self._gen_data(in_dim, out_dim)
-        _, y_ = self._gen_data(in_dim, out_dim)
+    def _forward(self, batch_size, in_dim, out_dim):
+        _, y = self._gen_batch_data(batch_size, in_dim, out_dim)
+        _, y_ = self._gen_batch_data(batch_size, in_dim, out_dim)
 
         # Initialize losses
         loss_ours, loss_theirs = self._init_modules()
@@ -35,4 +36,5 @@ class TestLoss(TestModule):
         for _ in range(n_tests):
             in_dim = random.randint(1, max_dim)
             out_dim = random.randint(1, max_dim)
-            self._forward(in_dim, out_dim)
+            batch_size = random.randint(1, max_batch_size)
+            self._forward(batch_size, in_dim, out_dim)
