@@ -13,6 +13,13 @@ class Sequential(Module):
         self.modules = modules
         self.loss_fn = loss_fn
 
+    def __str__(self):
+        out = 'Sequential(\n'
+        for i, module in enumerate(self.modules):
+            out += f'\t({i}): {str(module)}\n'
+        out += ')'
+        return out
+
     def print(self):
         """ print model architecture"""
         print("Sequential((")

@@ -45,7 +45,8 @@ class Linear(Layer):
         self.cache['t'] = 1
 
     def __str__(self):
-        return f"Linear({self.dim_in}, {self.dim_out})"
+        # Bias is always true so far
+        return f"Linear(in_features={self.dim_in}, out_features={self.dim_out}, bias=True)"
 
     def forward(self, x):
         """ Calculate output.
