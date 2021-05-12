@@ -1,4 +1,4 @@
-import torch
+import torch, math
 from nn.module import Module
 
 class Layer(Module):
@@ -30,8 +30,9 @@ class Linear(Layer):
         self.dim_out = dim_out
         
         # Initialize parameters
-        self.cache['w'] = torch.empty((dim_out, dim_in)).normal_()
-        self.cache['b'] = torch.empty((dim_out, )).normal_()
+        self.cache['w'] = torch.empty((dim_out, dim_in))
+        self.cache['b'] = torch.empty((dim_out, ))
+        self._init_param()
         
         # Initialize optimizer params (only needed for ADAM optimizer)
         # momentum
@@ -93,6 +94,11 @@ class Linear(Layer):
         self.cache['dx_loc'] = w
         self.cache['dw_loc'] = x
         self.cache['db_loc'] = 1
+
+    def _init_param(self):
+        stdv = 1. / math.sqrt(self.cache['w'].size(1))
+        self.cache['w'].uniform_(-stdv, stdv)
+        self.cache['b'].uniform_(-stdv, stdv)
     
     def _update_params(self, optim, lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=1e-8):
         """ Update the parameters of this module according to the opimizer
