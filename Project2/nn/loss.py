@@ -31,6 +31,7 @@ class Loss(Module):
         pass
 
 
+
 class MSELoss(Loss):
     def __init__(self):
         super().__init__()

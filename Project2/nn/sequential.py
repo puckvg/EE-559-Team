@@ -1,6 +1,7 @@
 import torch
 from nn.module import Module
 from nn.loss import Loss
+from nn.linear import Layer
 
 class Sequential(Module):
     def __init__(self, modules, loss_fn):
@@ -49,6 +50,7 @@ class Sequential(Module):
 
         """
         for module in self.modules:
-            module._update_params(optim, lr)
+            if isinstance(module, Layer):
+                module._update_params(optim, lr)
 
 
