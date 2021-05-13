@@ -9,8 +9,8 @@ max_n_layers = 100
 thresh = 1e-3 
 
 class TestSGD(TestModule):
-    def _step(self, in_dim, out_dim, lr):
-        x, y = self._gen_data(in_dim, out_dim)
+    def _step(self, batch_size, in_dim, out_dim, lr):
+        x, y = self._gen_batch_data(batch_size, in_dim, out_dim)
 
         # Initialize modules 
         mod_ours, mod_theirs = self._init_modules(in_dim, out_dim)
@@ -59,12 +59,13 @@ class TestSGD(TestModule):
         for _ in range(n_tests):
             in_dim = 3
             out_dim = 2
+            batch_size = 4
             lr = 0.01 
-            self._step(in_dim, out_dim, lr)
+            self._step(batch_size, in_dim, out_dim, lr)
 
 class TestAdam(TestModule):
-    def _step(self, in_dim, out_dim, lr):
-        x, y = self._gen_data(in_dim, out_dim)
+    def _step(self, batch_size, in_dim, out_dim, lr):
+        x, y = self._gen_batch_data(batch_size, in_dim, out_dim)
 
         # Initialize modules 
         mod_ours, mod_theirs = self._init_modules(in_dim, out_dim)
@@ -114,4 +115,5 @@ class TestAdam(TestModule):
             in_dim = 3
             out_dim = 2
             lr = 0.01 
-            self._step(in_dim, out_dim, lr)
+            batch_size = 4
+            self._step(batch_size, in_dim, out_dim, lr)

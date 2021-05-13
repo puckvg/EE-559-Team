@@ -129,11 +129,13 @@ class Linear(Layer):
     def _update_params(self, optim, lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=1e-8):
         """ Update the parameters of this module according to the opimizer
             and the cached gradients 
+            
             Args:
-            lr : step size (for all optimizers)
-            beta_1 : first order exp decay (for adam)
-            beta_2 : second order exp decay (for adam)
-            epsilon : small param to prevent zero division (for adam)"""
+                lr : step size (for all optimizers)
+                beta_1 : first order exp decay (for adam)
+                beta_2 : second order exp decay (for adam)
+                epsilon : small param to prevent zero division (for adam)
+        """
         
         if optim == 'sgd':
             w, b = self.param()

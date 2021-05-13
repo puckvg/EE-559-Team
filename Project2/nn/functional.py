@@ -32,6 +32,16 @@ def d_mse(x, y, reduction='mean'):
         Returns:
             d_mse: float. Gradient of mean squared error.
     """
+    if len(x.shape) == 1:
+        x = x.reshape(1, -1)
+    elif len(x.shape) >= 3:
+        raise NotImplementedError("Linear not implement for imput of 3 or more dimensions!")
+    
+    if len(y.shape) == 1:
+        y = y.reshape(1, -1)
+    elif len(y.shape) >= 3:
+        raise NotImplementedError("Linear not implement for target of 3 or more dimensions!")
+    
     d_mse = 2*(x - y) / (y.size(0) * y.size(1))
     return d_mse
 
