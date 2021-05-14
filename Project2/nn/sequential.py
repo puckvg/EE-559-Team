@@ -60,4 +60,17 @@ class Sequential(Module):
             if isinstance(module, Layer):
                 module._update_params(optim, lr)
 
+    ### Methods for trainer ###
+    def training_step(self, x, y):
+        out = self.forward(x)
+        loss = self.loss(out, y)
+        return loss
+
+    def validation_step(self, x, y):
+        out = self.forward(x)
+        loss = self.loss(out, y)
+        return loss
+
+    def test_step(self, x, y):
+        return self.validation_step(x, y)
 
