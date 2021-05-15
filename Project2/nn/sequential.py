@@ -11,6 +11,7 @@ class Sequential(Module):
             modules (list(Module)): List of modules.
             loss_fn (str): loss function.
         """ 
+
         super().__init__()
         self.modules = modules
         self.loss_fn = loss_fn
@@ -24,6 +25,7 @@ class Sequential(Module):
 
     def print(self):
         """Print model architecture."""
+
         print("Sequential((")
         for module in self.modules: 
             print(f"{module}, ")
@@ -42,6 +44,7 @@ class Sequential(Module):
         Returns: 
             out (torch.tensor): Output tensor
         """
+
         out = x
         for module in self.modules:
             out = module(out)
@@ -49,6 +52,7 @@ class Sequential(Module):
 
     def backward(self):
         """Perform backward pass."""
+
         dy = self.loss_fn.backward()
         for module in reversed(self.modules):
             dy = module.backward(dy)
@@ -60,6 +64,7 @@ class Sequential(Module):
             x (torch.tensor) : Input tensor
             y (torch.tensor) : Target tensor 
         """
+
         loss = self.loss_fn(x, y)
         return loss
 
@@ -71,6 +76,7 @@ class Sequential(Module):
             optim (string): The optimizer to use. options are 'adam' or 'sgd'
             lr (float): Learning rate
         """
+
         for module in self.modules:
             if isinstance(module, Layer):
                 module._update_params(optim, lr)
@@ -86,6 +92,7 @@ class Sequential(Module):
         Returns: 
             loss (torch.tensor): computed loss
         """
+
         out = self.forward(x)
         loss = self.loss(out, y)
         return loss
@@ -100,6 +107,7 @@ class Sequential(Module):
         Returns: 
             loss (torch.tensor): computed loss
         """ 
+        
         out = self.forward(x)
         loss = self.loss(out, y)
         return loss

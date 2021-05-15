@@ -42,6 +42,7 @@ def tanh(x):
     Returns:
         out (torch.tensor): Output tensor
     """
+
     out = x.tanh()
     return out
 
@@ -55,6 +56,7 @@ def d_tanh(x):
     Returns:
         out (torch.tensor): Output tensor
     """ 
+
     out = 1 - x.tanh().pow(2)
     return out
 
@@ -68,6 +70,7 @@ def relu(x):
     Returns:
         out (torch.tensor): Output tensor
     """
+
     out = x.relu()
     return out
 
@@ -81,5 +84,6 @@ def d_relu(x):
     Returns:
         out (torch.tensor): Output tensor
     """
+    
     out = (x > 0) * 1
     return out

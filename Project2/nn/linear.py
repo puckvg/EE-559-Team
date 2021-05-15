@@ -7,10 +7,12 @@ class Layer(Module):
 
     def __str__(self):
         """Return the string representation of the layer"""
+
         pass
 
     def update_param(self, *args, **kwargs):
         """Update the params of the Layer based on the cached gradients"""
+
         pass
 
     def _grad_local(self, x):
@@ -18,6 +20,7 @@ class Layer(Module):
 
     def param(self):
         """Return the params of the Layer."""
+        
         pass
 
 
@@ -30,6 +33,7 @@ class Linear(Layer):
             dim_in (int): Dimension of input.
             dim_out (int): Dimension of output.
         """
+
         super().__init__()
         self.dim_in = dim_in
         self.dim_out = dim_out
@@ -50,8 +54,7 @@ class Linear(Layer):
         self.cache['t'] = 1
 
     def __str__(self):
-        # Bias is always true so far
-        # TODO what do you mean? bias is not an argument 
+        # Bias is hardcoded as we do not provide an option to specify bias=False
         return f"Linear(in_features={self.dim_in}, out_features={self.dim_out}, bias=True)"
 
     def forward(self, x):
@@ -78,23 +81,6 @@ class Linear(Layer):
         # Read local gradients from cache
         dx_loc = self.cache['dx_loc']
         dw_loc = self.cache['dw_loc']
-
-        """
-        Notes Felix:
-        dx_glob = dL/dx = dL/dY W.T         [same size as x]
-        dw_glob = dL/dW = X.T dL/dY         [same size as w]
-        
-        dx_loc = w
-        dw_loc = x
-        db_loc = 1
-        
-        Source: https://web.eecs.umich.edu/~justincj/teaching/eecs442/notes/linear-backprop.html
-        """
-        
-        # Fast fix for dy dimension problem
-        """There is something I haven't figured out with the dimensions yet: I belive that the dimension
-        of the loss function is somehow wrong or incompatible. This fix worked for me, but we should try 
-        to understand the problem and fix it properly."""
         
         # Compute global gradients
         self.cache['dx_glob'] = dy.mm(dx_loc.T)
@@ -109,6 +95,7 @@ class Linear(Layer):
         Returns:
             w, b (torch.tensor) : weight and bias of linear layer.
         """
+
         w = self.cache['w']
         b = self.cache['b']
         return w, b
@@ -119,6 +106,7 @@ class Linear(Layer):
         Args:
             x (torch.tensor): Input tensor.
         """
+
         w, b = self.param()
         
         self.cache['dx_loc'] = w
@@ -127,6 +115,7 @@ class Linear(Layer):
 
     def _init_param(self):
         """Initialize parameters from uniform distribution"""
+        
         stdv = 1. / math.sqrt(self.cache['w'].size(1))
         self.cache['w'].uniform_(-stdv, stdv)
         self.cache['b'].uniform_(-stdv, stdv)

@@ -11,6 +11,7 @@ class Loss(Module):
 
     def __str__(self):
         """Return string representation"""
+
         pass 
 
     def forward(self, x, y):
@@ -19,6 +20,7 @@ class Loss(Module):
             x (torch.tensor): Input tensor.
             y (torch.tensor): Target tensor.
         """
+
         pass
 
     def backward(self):
@@ -29,6 +31,7 @@ class Loss(Module):
         Returns: 
             dy (torch.tensor): Backpropagated gradient from the next layer.
         """
+
         return self.cache['dx_glob']
 
     def _grad_local(self, x, y):
@@ -38,6 +41,7 @@ class Loss(Module):
             x (torch.tensor): Input tensor.
             y (torch.tensor): Target tensor.
         """
+
         pass
 
 
@@ -59,6 +63,7 @@ class MSELoss(Loss):
         Returns:
             output (torch.tensor): Mean squared error.
         """
+        
         output = mse(x, y)
         return output
 

@@ -9,6 +9,7 @@ class Activation(Module):
 
     def __str__(self):
         """str: Return string representation."""
+
         pass
 
     def forward(self, x):
@@ -17,6 +18,7 @@ class Activation(Module):
         Args:
             x (torch.tensor): Input tensor.
         """
+
         pass
 
     def backward(self, dy):
@@ -44,6 +46,7 @@ class Activation(Module):
             x (torch.tensor): Input tensor.
             y (torch.tensor): Target tensor.
         """
+        
         pass
 
     
@@ -65,6 +68,7 @@ class ReLU(Activation):
         Returns:
             out (torch.tensor): Output tensor.
         """
+
         out = f.relu(x)
         return out
     
@@ -96,6 +100,7 @@ class Tanh(Activation):
         Returns:
             out (torch.tensor): Output tensor.
         """
+
         out = f.tanh(x)
         return out
     
@@ -105,5 +110,6 @@ class Tanh(Activation):
         Args:
             x (torch.tensor): Input tensor.
         """
+        
         self.cache['dx_loc'] = f.d_tanh(x)
     
