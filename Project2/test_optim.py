@@ -52,7 +52,7 @@ class TestSGD(TestModule):
             mod_theirs.weight[torch.isnan(mod_theirs.weight)] = 0.
             mod_theirs.bias[torch.isnan(mod_theirs.bias)] = 0.
 
-        assert mod_ours.cache['w'].isclose(mod_theirs.weight, rtol=thresh).all(), 'weights after SGD step must be the same'
+        assert mod_ours.cache['w'].isclose(mod_theirs.weight.T, rtol=thresh).all(), 'weights after SGD step must be the same'
         assert mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all(), 'bias after SGD step must be the same'
 
     def test_optim_step(self):
@@ -107,7 +107,7 @@ class TestAdam(TestModule):
             mod_theirs.weight[torch.isnan(mod_theirs.weight)] = 0.
             mod_theirs.bias[torch.isnan(mod_theirs.bias)] = 0.
 
-        assert mod_ours.cache['w'].isclose(mod_theirs.weight, rtol=thresh).all(), 'weights after Adam step must be the same'
+        assert mod_ours.cache['w'].isclose(mod_theirs.weight.T, rtol=thresh).all(), 'weights after Adam step must be the same'
         assert mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all(), 'bias after Adam step must be the same'
 
     def test_optim_step(self):

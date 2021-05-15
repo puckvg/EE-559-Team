@@ -53,10 +53,14 @@ class TestActivation(TestModule):
         """
         
         # Create data
+        #in_dim = 4
+        #out_dim = 2
         x, y = self._gen_batch_data(batch_size, in_dim, out_dim)
         
         # Creating sequential
         module_ours, module_theirs = self._init_modules(in_dim, out_dim)
+        w, b = module_ours.param()
+        print(f'bias ours: {w}, bias theirs: {module_theirs.weight}')
         if name == 'relu':
             seq_ours = Sequential((module_ours, ReLU()), MSELoss())
             seq_theirs = torch.nn.Sequential(module_theirs, torch.nn.ReLU())
@@ -65,7 +69,7 @@ class TestActivation(TestModule):
             seq_theirs = torch.nn.Sequential(module_theirs, torch.nn.Tanh())
         else:
             raise NotImplementedError
-                
+        
         # Forward 
         out_ours = seq_ours(x)
         out_theirs = seq_theirs(x)
@@ -74,6 +78,7 @@ class TestActivation(TestModule):
         loss_ours = seq_ours.loss(out_ours, y)
         loss_fn_theirs = torch.nn.MSELoss()
         loss_theirs = loss_fn_theirs(out_theirs, y)
+        
         
         # Backward
         seq_ours.backward()
@@ -89,12 +94,14 @@ class TestActivation(TestModule):
         db_ours = m_ours[0].cache['db_glob']
         db_theirs = m_theirs.bias.grad
         
-        if db_ours.isclose(db_theirs, rtol=thresh).all() == False:
-            print(dw_ours)
-            print(dw_theirs)
         
-        assert db_ours.isclose(db_theirs, rtol=thresh).all(), 'Gradients of the bias must be equal'
-        assert dw_ours.isclose(dw_theirs, rtol=thresh).all(), 'Gradients of the weights must be equal'
+        if db_ours.isclose(db_theirs.T, rtol=thresh).all() == False:
+            print(f'ours {dw_ours}')
+            print(f'theirs {dw_theirs.T}')
+        
+        
+        assert db_ours.isclose(db_theirs.T, rtol=thresh).all(), 'Gradients of the bias must be equal'
+        assert dw_ours.isclose(dw_theirs.T, rtol=thresh).all(), 'Gradients of the weights must be equal'
         
         
     def test_relu_forward(self):

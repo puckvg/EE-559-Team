@@ -30,8 +30,8 @@ class Linear(Layer):
         self.dim_out = dim_out
         
         # Initialize parameters
-        self.cache['w'] = torch.empty((dim_out, dim_in))
-        self.cache['b'] = torch.empty((dim_out, ))
+        self.cache['w'] = torch.empty((dim_in, dim_out))
+        self.cache['b'] = torch.empty((dim_out))
         self._init_param()
         
         # Initialize optimizer params (only needed for ADAM optimizer)
@@ -55,13 +55,9 @@ class Linear(Layer):
         Returns:
             output: torch.tensor. Output tensor of size (batch_size, output_dim)
         """
-        if len(x.shape) == 1:
-            x = x.reshape(1, -1)
-        elif len(x.shape) >= 3:
-            raise NotImplementedError("Linear not implement for imput of 3 or more dimensions!")
         
         w, b = self.param()
-        return w.mm(x.T).T + b
+        return x.mm(w) + b
 
     def backward(self, dy):
         """ Compute gradients of input and parameters.
@@ -91,13 +87,11 @@ class Linear(Layer):
         """ There is something I haven't figured out with the dimensions yet: I belive that the dimension
         of the loss function is somehow wrong or incompatible. This fix worked for me, but we should try 
         to understand the problem and fix it properly."""
-        if dy.size(1) != dx_loc.size(0): dy = dy.T
-        assert dy.size(1) == dx_loc.size(0), "Problem with backprop gradient dimensions"
         
         # Compute global gradients
-        self.cache['dx_glob'] = dy.mm(dx_loc).T
-        self.cache['dw_glob'] = dw_loc.T.mm(dy).T
-        self.cache['db_glob'] = dy.sum(dim=0)
+        self.cache['dx_glob'] = dy.mm(dx_loc.T)
+        self.cache['dw_glob'] = dw_loc.T.mm(dy)
+        self.cache['db_glob'] = dy.sum(dim=0, keepdim=False)
         
         return self.cache['dx_glob']
 
@@ -115,11 +109,11 @@ class Linear(Layer):
         Args:
             x: torch.tensor. Input tensor.
         """
-        w, _ = self.param()
+        w, b = self.param()
         
         self.cache['dx_loc'] = w
         self.cache['dw_loc'] = x
-        self.cache['db_loc'] = 1
+        self.cache['db_loc'] = torch.ones_like(b)
 
     def _init_param(self):
         stdv = 1. / math.sqrt(self.cache['w'].size(1))

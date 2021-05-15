@@ -24,7 +24,7 @@ class Activation(Module):
         
         # Compute global gradients
         # self.cache['dx_glob'] = dx_loc.T.mv(dy)
-        self.cache['dx_glob'] = dx_loc.mul(dy)
+        self.cache['dx_glob'] = dy.mul(dx_loc)
         
         return self.cache['dx_glob']
 
