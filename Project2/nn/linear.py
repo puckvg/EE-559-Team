@@ -160,6 +160,7 @@ class Linear(Layer):
             self.cache['b'] = b
             
         elif optim == 'adam':
+            # https://towardsdatascience.com/how-to-implement-an-adam-optimizer-from-scratch-76e7b217f1cc
             w, b = self.param()
             t = self.cache['t']
 
