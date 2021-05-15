@@ -12,17 +12,9 @@ def mse(x, y):
         Returns:
             ms_error (torch.tensor): Mean squared error.
     """
-    batch_size = x.shape[0]
-    feature_dim = x.shape[1]
     
-    # TODO should this be an option? 
+    ms_error = (x-y).pow(2).sum(dim=1, keepdim=True).mean() / x.size(1)
 
-    # Samplewise MSE (vector)
-    ms_error = (x - y).pow(2).sum(dim = 1) / feature_dim
-    
-    # Batchwise Average (scalar)
-    ms_error = ms_error.sum(dim=0) / batch_size
-    
     return ms_error
 
 
@@ -36,17 +28,8 @@ def d_mse(x, y):
         Returns:
             d_mse (float): Gradient of mean squared error.
     """
-    if len(x.shape) == 1:
-        x = x.reshape(1, -1)
-    elif len(x.shape) >= 3:
-        raise NotImplementedError("Linear not implemented for input of 3 or more dimensions!")
     
-    if len(y.shape) == 1:
-        y = y.reshape(1, -1)
-    elif len(y.shape) >= 3:
-        raise NotImplementedError("Linear not implemented for target of 3 or more dimensions!")
-    
-    d_mse = 2*(x - y) / (y.size(0) * y.size(1))
+    d_mse = 2*(x - y) / x.size(0) / x.size(1)
     return d_mse
 
 

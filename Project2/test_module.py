@@ -22,7 +22,8 @@ class TestModule(TestCase):
     def _init_modules(self, in_dim, out_dim):
         mod_ours = Linear(in_dim, out_dim)
         mod_theirs = torch.nn.Linear(in_dim, out_dim)
-        mod_theirs.weight.data, mod_theirs.bias.data = mod_ours.param()
+        w, b = mod_ours.param()
+        mod_theirs.weight.data, mod_theirs.bias.data = w.T, b.T
         return mod_ours, mod_theirs
     
     def _forward(self, in_dim, out_dim):

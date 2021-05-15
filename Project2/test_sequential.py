@@ -81,7 +81,7 @@ class TestSequential(TestModule):
                 print(db_theirs)
             
             assert db_ours.isclose(db_theirs, rtol=thresh).all(), 'Gradients of the bias must be equal'
-            assert dw_ours.isclose(dw_theirs, rtol=thresh).all(), 'Gradients of the weights must be equal'
+            assert dw_ours.isclose(dw_theirs.T, rtol=thresh).all(), 'Gradients of the weights must be equal'
 
     def test_backward_single_layer(self):
         for _ in range(n_tests):

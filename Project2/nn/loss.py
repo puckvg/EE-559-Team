@@ -23,12 +23,13 @@ class Loss(Module):
 
     def backward(self):
         """Backward pass. 
-
+            The backward method can be implemented in the generic Loss class
+            as it should be the same for all Loss Modules.
+        
         Returns: 
             dy (torch.tensor): Backpropagated gradient from the next layer.
         """
-        dy = self.cache['dy']
-        return dy
+        return self.cache['dx_glob']
 
     def _grad_local(self, x, y):
         """Compute local gradient with respect to the input x.
@@ -69,5 +70,5 @@ class MSELoss(Loss):
             x (torch.tensor): Input tensor.
             y (torch.tensor): Target tensor.
         """
-        grad = d_mse(x, y)
-        self.cache['dy'] = grad
+        
+        self.cache['dx_glob'] = d_mse(x, y)

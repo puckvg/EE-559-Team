@@ -33,10 +33,9 @@ class Activation(Module):
         dx_loc = self.cache['dx_loc']
         
         # Compute global gradients
-        # self.cache['dx_glob'] = dx_loc.T.mv(dy)
-        self.cache['dx_glob'] = dx_loc.mul(dy)
-        grad = self.cache['dx_glob']
-        return grad 
+        self.cache['dx_glob'] = dy.mul(dx_loc)
+        
+        return self.cache['dx_glob']
 
     def _grad_local(self, x, y):
         """ Compute local gradients of activation function.
