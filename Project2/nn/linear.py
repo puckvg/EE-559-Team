@@ -183,4 +183,4 @@ class Linear(Layer):
             self.cache['b'] = b
             
         else:
-            raise NotImplementedError, "Only SGD and Adam optimizers have been implemented!"
+            raise NotImplementedError("Only SGD and Adam optimizers have been implemented!")
