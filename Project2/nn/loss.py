@@ -4,29 +4,38 @@ from nn.functional import *
 
 
 class Loss(Module):
-    """ The Loss Module is used to implement a node in the network that computes the loss.
-    For the computation of any function the respective functional from functional.py should be used. """
+    """The Loss Module is used to implement a node in the network that computes the loss.
+    For the computation of any function the respective functional from functional.py should be used."""
     def __init__(self):
         super().__init__()
+
+    def __str__(self):
+        """Return string representation"""
+        pass 
 
     def forward(self, x, y):
         """ Compute the loss.
         Args:
-            x: torch.tensor. Input tensor.
-            y: torch.tensor. Target tensor.
+            x (torch.tensor): Input tensor.
+            y (torch.tensor): Target tensor.
         """
         pass
 
     def backward(self):
-        """ The backward method can be implemented in the generic Loss class
-            as it should be the same for all Loss Modules. """
-        return self.cache['dy']
+        """Backward pass. 
+
+        Returns: 
+            dy (torch.tensor): Backpropagated gradient from the next layer.
+        """
+        dy = self.cache['dy']
+        return dy
 
     def _grad_local(self, x, y):
-        """
+        """Compute local gradient with respect to the input x.
+
         Args:
-            x: troch.tensor. Input tensor.
-            y: torch.tensor. Target tensor.
+            x (torch.tensor): Input tensor.
+            y (torch.tensor): Target tensor.
         """
         pass
 
@@ -40,22 +49,25 @@ class MSELoss(Loss):
         return "MSELoss()"
 
     def forward(self, x, y):
-        """ Compute the mean squared error.
+        """Compute the mean squared error.
+
         Args:
-            x: torch.tensor. Input tensor.
-            y: torch.tensor. Target tensor.
+            x (torch.tensor): Input tensor.
+            y (torch.tensor): Target tensor.
 
         Returns:
-            output: float. Mean squared error.
+            output (torch.tensor): Mean squared error.
         """
-        return mse(x, y)
+        output = mse(x, y)
+        return output
 
     def _grad_local(self, x, y):
-        """ Compute local gradient of MSE with respect to the input x. 
+        """Compute local gradient of MSE with respect to the input x. 
         Store gradient in cache for backward step.
+
         Args:
-            x: torch.tensor. Input tensor.
-            y: torch.tensor. Target tensor.
+            x (torch.tensor): Input tensor.
+            y (torch.tensor): Target tensor.
         """
         grad = d_mse(x, y)
         self.cache['dy'] = grad
