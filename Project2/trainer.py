@@ -48,7 +48,6 @@ class Trainer:
 
                 avg_loss_val = round(sum(loss_val)/len(loss_val), 2)
                 val_loss_epochs.append(avg_loss_val)
-
                 if (e) % batch_size == 0:
                     print(f'# Epoch {e+1}/{self.nb_epochs}:\t loss={avg_loss_train}\t loss_val={avg_loss_val}')
 
