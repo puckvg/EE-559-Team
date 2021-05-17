@@ -60,7 +60,8 @@ class TestActivation(TestModule):
         # Creating sequential
         module_ours, module_theirs = self._init_modules(in_dim, out_dim)
         w, b = module_ours.param()
-        print(f'bias ours: {w}, bias theirs: {module_theirs.weight}')
+        print(f'weight ours:\n {w}, \nweight theirs:\n {module_theirs.weight}')
+        print(f'bias ours:\n {b}, \bbias theirs:\n {module_theirs.bias}')
         if name == 'relu':
             seq_ours = Sequential((module_ours, ReLU()), MSELoss())
             seq_theirs = torch.nn.Sequential(module_theirs, torch.nn.ReLU())
@@ -96,9 +97,12 @@ class TestActivation(TestModule):
         
         
         if db_ours.isclose(db_theirs.T, rtol=thresh).all() == False:
+            print(f'ours {db_ours}')
+            print(f'theirs {db_theirs.T}')
+
+        if dw_ours.isclose(dw_theirs.T, rtol=thresh).all() == False: 
             print(f'ours {dw_ours}')
             print(f'theirs {dw_theirs.T}')
-        
         
         assert db_ours.isclose(db_theirs.T, rtol=thresh).all(), 'Gradients of the bias must be equal'
         assert dw_ours.isclose(dw_theirs.T, rtol=thresh).all(), 'Gradients of the weights must be equal'

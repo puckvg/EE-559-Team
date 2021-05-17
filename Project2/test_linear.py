@@ -58,8 +58,8 @@ class TestLinear(TestModule):
         loss_theirs.backward()
 
         if mod_ours.cache['dw_glob'].isclose(mod_theirs.weight.grad.T, rtol=thresh).all() == False:
-            print(mod_ours.cache['dw_glob']) 
-            print(mod_theirs.weight.grad)       
+            print('ours:', mod_ours.cache['dw_glob']) 
+            print('theirs:', mod_theirs.weight.grad)       
         
         assert mod_ours.cache['dw_glob'].isclose(mod_theirs.weight.grad.T, rtol=thresh).all(), 'Gradient of weights must be equal'
         assert mod_ours.cache['db_glob'].isclose(mod_theirs.bias.grad, rtol=thresh).all(), 'Gradient of bias must be equal'

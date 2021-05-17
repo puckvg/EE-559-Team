@@ -41,7 +41,7 @@ class TestSequential(TestModule):
         if out_ours.isclose(out_theirs, rtol=thresh).all() == False:
             print("\nOur output:")
             print(out_ours)
-            print("\nTheirs output:")
+            print("\nTheir output:")
             print(out_theirs) 
         
         assert out_ours.isclose(out_theirs, rtol=thresh).all(), 'Outputs must be equal'
