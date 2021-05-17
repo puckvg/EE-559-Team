@@ -7,9 +7,16 @@ from nn.loss import MSELoss
 from trainer import Trainer
 
 # -----------------------------------------------------
+#                     Parameters 
+# -----------------------------------------------------
+
+batch_size = 32
+nb_epochs = 25
+
+
+# -----------------------------------------------------
 #                    Creating data 
 # -----------------------------------------------------
-print("Creating data...")
 
 def gen_data(n):
     x = empty((2 * n, 2)).random_()
@@ -25,7 +32,6 @@ x_train, x_test, y_train, y_test = gen_data(n = 1000)
 # -----------------------------------------------------
 #                    Creating model 
 # -----------------------------------------------------
-print("Creating model...")
 
 LinNet = Sequential((
     Linear(2, 25),
@@ -41,12 +47,10 @@ LinNet = Sequential((
 # -----------------------------------------------------
 #                      Training 
 # -----------------------------------------------------
-print("Training...")
 
-trainer = Trainer(nb_epochs=25)
+trainer = Trainer(nb_epochs=nb_epochs)
 
-_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=32, optim='sgd')
-
+_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, optim='sgd')
 
 
 
