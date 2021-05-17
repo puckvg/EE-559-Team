@@ -20,7 +20,9 @@ nb_epochs = 25
 
 def gen_data(n):
     x = empty((2 * n, 2)).random_()
-    pi = empty((1)).acos().item() * 2
+    pi = empty((1)).fill_(0).acos().item() * 2
+    print(pi)
+
     target = ((x - empty(1,2).fill_(0.5)).pow(2).sum(dim=1) <= 1/(2*pi)) * 1
 
     x_train, x_test = x[:n], x[n:]

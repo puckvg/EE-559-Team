@@ -1,6 +1,4 @@
-import torch
 from nn.module import Module
-from nn.loss import Loss
 from nn.linear import Layer
 
 class Sequential(Module):

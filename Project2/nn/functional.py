@@ -1,5 +1,3 @@
-import torch
-
 """ The functional.py contains the concrete implementations of specific functionals. """
 
 def mse(x, y):

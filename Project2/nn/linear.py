@@ -1,4 +1,4 @@
-import torch, math
+from torch import empty
 from nn.module import Module
 
 class Layer(Module):
@@ -39,8 +39,8 @@ class Linear(Layer):
         self.dim_out = dim_out
         
         # Initialize parameters
-        self.cache['w'] = torch.empty((dim_in, dim_out))
-        self.cache['b'] = torch.empty((dim_out))
+        self.cache['w'] = empty((dim_in, dim_out))
+        self.cache['b'] = empty((dim_out))
         self._init_param()
         
         # Initialize optimizer params (only needed for ADAM optimizer)
@@ -111,12 +111,13 @@ class Linear(Layer):
         
         self.cache['dx_loc'] = w
         self.cache['dw_loc'] = x
-        self.cache['db_loc'] = torch.ones_like(b)
+        self.cache['db_loc'] = empty(b.shape).fill_(1)
 
     def _init_param(self):
         """Initialize parameters from uniform distribution"""
         
-        stdv = 1. / math.sqrt(self.cache['w'].size(1))
+        # stdv = 1. / math.sqrt(self.cache['w'].size(1))
+        stdv = 1. / empty((1)).fill_(self.cache['w'].size(1)).sqrt().item()
         self.cache['w'].uniform_(-stdv, stdv)
         self.cache['b'].uniform_(-stdv, stdv)
     
@@ -160,8 +161,8 @@ class Linear(Layer):
             v_dw_corr = v_dw / (1 - beta_2**t)
             v_db_corr = v_db / (1 - beta_2**t)
 
-            w -= lr * (m_dw_corr / (torch.sqrt(v_dw_corr) + epsilon))
-            b -= lr * (m_db_corr / (torch.sqrt(v_db_corr) + epsilon))
+            w -= lr * (m_dw_corr / (v_dw_corr.sqrt() + epsilon))
+            b -= lr * (m_db_corr / (v_db_corr.sqrt() + epsilon))
 
             self.cache['m_dw'] = m_dw
             self.cache['m_db'] = m_db
