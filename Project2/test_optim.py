@@ -115,5 +115,5 @@ class TestAdam(TestModule):
             in_dim = 3
             out_dim = 2
             lr = 0.01 
-            batch_size = 4
+            batch_size = 16
             self._step(batch_size, in_dim, out_dim, lr)
