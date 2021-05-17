@@ -69,13 +69,11 @@ class Trainer:
             x_batch = x_test[batch:batch+batch_size]
             y_batch = y_test[batch:batch+batch_size]
 
-            loss, acc = model.test_step(x_batch, y_batch)
+            loss = model.test_step(x_batch, y_batch)
             loss_test.append(loss.item())
-            acc_test.append(acc)
 
         avg_loss_test = round(sum(loss_test)/len(loss_test), 2)
-        avg_acc_test = round(sum(acc_test)/len(acc_test), 2)
         if test_verbose:
-            print(f'loss_test={avg_loss_test}\t acc_test={avg_acc_test}')
+            print(f'loss_test={avg_loss_test}')
         if test_verbose: 
-            return avg_acc_test
+            return avg_loss_test
