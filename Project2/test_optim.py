@@ -46,13 +46,12 @@ class TestSGDModule(TestModule):
         opt_theirs.step()
         mod_ours._update_params(optim=opt_ours, lr=lr)
 
-       # set nans to the same number for isclose test 
-        mod_ours.cache['w'][torch.isnan(mod_ours.cache['w'])] = 0.
-        mod_ours.cache['b'][torch.isnan(mod_ours.cache['b'])] = 0.
-
-        with torch.no_grad():
-            mod_theirs.weight[torch.isnan(mod_theirs.weight)] = 0.
-            mod_theirs.bias[torch.isnan(mod_theirs.bias)] = 0.
+        if not mod_ours.cache['w'].isclose(mod_theirs.weight.T, rtol=thresh).all():
+            print('our weights\n', mod_ours.cache['w'])
+            print('theirs\n', mod_theirs.weight.T)
+        if not mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all():
+            print('our bias\n', mod_ours.cache['b'])
+            print('theirs\n', mod_theirs.bias)
 
         assert mod_ours.cache['w'].isclose(mod_theirs.weight.T, rtol=thresh).all(), 'weights after SGD step must be the same'
         assert mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all(), 'bias after SGD step must be the same'
@@ -101,13 +100,13 @@ class TestAdamModule(TestModule):
         # opt 
         opt_theirs.step()
         mod_ours._update_params(optim=opt_ours, lr=lr)
-
-        # set nans to the same number for isclose test 
-        mod_ours.cache['w'][torch.isnan(mod_ours.cache['w'])] = 0.
-        mod_ours.cache['b'][torch.isnan(mod_ours.cache['b'])] = 0.
-        with torch.no_grad():
-            mod_theirs.weight[torch.isnan(mod_theirs.weight)] = 0.
-            mod_theirs.bias[torch.isnan(mod_theirs.bias)] = 0.
+        
+        if not mod_ours.cache['w'].isclose(mod_theirs.weight.T, rtol=thresh).all():
+            print('our weights\n', mod_ours.cache['w'])
+            print('theirs\n', mod_theirs.weight.T)
+        if not mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all():
+            print('our bias\n', mod_ours.cache['b'])
+            print('theirs\n', mod_theirs.bias)
 
         assert mod_ours.cache['w'].isclose(mod_theirs.weight.T, rtol=thresh).all(), 'weights after Adam step must be the same'
         assert mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all(), 'bias after Adam step must be the same'
@@ -116,7 +115,6 @@ class TestAdamModule(TestModule):
         for _ in range(n_tests):
             in_dim = 3
             out_dim = 2
-            lr = 0.01 
-            batch_size = 16
+            lr = 1e-3
+            batch_size = 32
             self._step(batch_size, in_dim, out_dim, lr)
-

@@ -152,7 +152,7 @@ class Linear(Layer):
 
             # rms 
             v_dw = beta_2 * self.cache['v_dw'] + (1 - beta_2) * self.cache['dw_glob']**2
-            v_db = beta_2 * self.cache['v_db'] + (1 - beta_2) * self.cache['db_glob']
+            v_db = beta_2 * self.cache['v_db'] + (1 - beta_2) * self.cache['db_glob']**2
 
             # bias correction 
             m_dw_corr = m_dw / (1 - beta_1**t)
