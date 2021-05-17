@@ -1,14 +1,17 @@
 from unittest import TestCase
-from test_module import TestModule
+from test_sequential import TestSequential
+from test_activation import TestActivation
 import torch 
 from nn.loss import MSELoss
+from nn.sequential import Sequential
+from nn.activation import ReLU, Tanh
 
 n_tests = 10 
 max_dim = 5 
 max_n_layers = 100
 thresh = 1e-3 
 
-class TestSGD(TestModule):
+class TestSGDModule(TestModule):
     def _step(self, batch_size, in_dim, out_dim, lr):
         x, y = self._gen_batch_data(batch_size, in_dim, out_dim)
 
@@ -63,7 +66,7 @@ class TestSGD(TestModule):
             lr = 0.01 
             self._step(batch_size, in_dim, out_dim, lr)
 
-class TestAdam(TestModule):
+class TestAdamModule(TestModule):
     def _step(self, batch_size, in_dim, out_dim, lr):
         x, y = self._gen_batch_data(batch_size, in_dim, out_dim)
 
@@ -117,3 +120,4 @@ class TestAdam(TestModule):
             lr = 0.01 
             batch_size = 16
             self._step(batch_size, in_dim, out_dim, lr)
+
