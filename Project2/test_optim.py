@@ -1,6 +1,5 @@
 from unittest import TestCase
-from test_sequential import TestSequential
-from test_activation import TestActivation
+from test_module import TestModule
 import torch 
 from nn.loss import MSELoss
 from nn.sequential import Sequential
@@ -47,7 +46,7 @@ class TestSGDModule(TestModule):
         opt_theirs.step()
         mod_ours._update_params(optim=opt_ours, lr=lr)
 
-        # set nans to the same number for isclose test 
+       # set nans to the same number for isclose test 
         mod_ours.cache['w'][torch.isnan(mod_ours.cache['w'])] = 0.
         mod_ours.cache['b'][torch.isnan(mod_ours.cache['b'])] = 0.
 
@@ -110,6 +109,7 @@ class TestAdamModule(TestModule):
             mod_theirs.weight[torch.isnan(mod_theirs.weight)] = 0.
             mod_theirs.bias[torch.isnan(mod_theirs.bias)] = 0.
 
+        # TODO OUR WEIGHTS ARE THEIR TRANSPOSE 
         assert mod_ours.cache['w'].isclose(mod_theirs.weight.T, rtol=thresh).all(), 'weights after Adam step must be the same'
         assert mod_ours.cache['b'].isclose(mod_theirs.bias, rtol=thresh).all(), 'bias after Adam step must be the same'
 
