@@ -9,7 +9,7 @@ class Trainer:
         """
         self.nb_epochs = nb_epochs
     
-    def fit(self, model, x_train, y_train, x_val, y_val, batch_size=32, lr=0.01, optim='sgd', verbose=True):
+    def fit(self, model, x_train, y_train, x_val, y_val, batch_size=32, lr=0.01, optim='sgd', verbose=True, print_every=32):
         """ Train the model on the specified data and print the training and validation loss and accuracy.
         Args:
             model: Module. Model to train
@@ -48,7 +48,7 @@ class Trainer:
 
                 avg_loss_val = round(sum(loss_val)/len(loss_val), 2)
                 val_loss_epochs.append(avg_loss_val)
-                if (e) % batch_size == 0:
+                if (e) % print_every == 0:
                     print(f'# Epoch {e+1}/{self.nb_epochs}:\t loss={avg_loss_train}\t loss_val={avg_loss_val}')
 
         if verbose:
