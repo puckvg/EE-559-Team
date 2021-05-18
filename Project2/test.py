@@ -19,7 +19,7 @@ nb_epochs = 100
 # -----------------------------------------------------
 
 def gen_data(n):
-    x = empty((2 * n, 2)).random_()
+    x = empty((2 * n, 2)).normal_()
     pi = empty((1)).fill_(0).acos().item() * 2
 
     target = ((x - empty(1,2).fill_(0.5)).pow(2).sum(dim=1) <= 1/(2*pi)) * 1
@@ -30,6 +30,9 @@ def gen_data(n):
 
 x_train, x_test, y_train, y_test = gen_data(n = 1000)
 
+
+
+
 # -----------------------------------------------------
 #                    Creating model 
 # -----------------------------------------------------
@@ -38,7 +41,7 @@ LinNet = Sequential((
     Linear(2, 25),
     ReLU(),
     Linear(25, 25),
-    ReLU(),
+    ReLU(), 
     Linear(25, 25),
     ReLU(),
     Linear(25, 1)),
@@ -51,7 +54,7 @@ LinNet = Sequential((
 
 trainer = Trainer(nb_epochs=nb_epochs)
 
-_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, optim='sgd')
+_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, optim='adam')
 
 
 
