@@ -10,6 +10,8 @@ Welcome to proj2's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   modules
+
 
 
 Indices and tables
