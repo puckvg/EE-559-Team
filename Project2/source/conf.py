@@ -15,7 +15,6 @@ import sys
 sys.path.insert(0, os.path.abspath("../nn"))
 sys.path.insert(0, os.path.abspath("../"))
 
-
 # -- Project information -----------------------------------------------------
 
 project = 'proj2'
@@ -31,7 +30,8 @@ release = '1.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'm2r2']
+source_suffix = ['.py', '.rst', '.md']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -43,4 +43,10 @@ exclude_patterns = ["../test.py", "test.py", "../test/", "test/"]
 
 # latex 
 #latex_engine = "pdflatex"
-latex_documents = [('index', 'proj2.tex', u'Proj2', u'PuckVG', 'manual'),]
+latex_documents = [('index', 'proj2.tex', u'Proj2', u'Jodok Vieli, Puck van Gerwen, Felix Hoppe', 'manual'),]
+latex_elements = {
+        'pointsize':'10pt',
+        'extraclassoptions':'openany,oneside'
+        }
+latex_toplevel_sectioning = 'section'
+
