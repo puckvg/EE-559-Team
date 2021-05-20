@@ -19,7 +19,7 @@ nb_epochs = 25
 # -----------------------------------------------------
 
 def gen_data(n):
-    x = empty((2 * n, 2)).random_(0, 1)
+    x = empty((2 * n, 2)).uniform_(0, to=1)
     pi = empty((1)).fill_(0).acos().item() * 2
 
     target = ((x - empty(1,2).fill_(0.5)).pow(2).sum(dim=1) <= 1/(2*pi)) * 1
@@ -54,7 +54,7 @@ LinNet = Sequential((
 
 trainer = Trainer(nb_epochs=nb_epochs)
 
-_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=1, optim='sgd')
+_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=1, optim='adam')
 
 
 
