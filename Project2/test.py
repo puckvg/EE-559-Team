@@ -31,22 +31,21 @@ def gen_data(n):
 x_train, x_test, y_train, y_test = gen_data(n = 1000)
 
 
-
-
 # -----------------------------------------------------
 #                    Creating model 
 # -----------------------------------------------------
 
-LinNet = Sequential((
-    Linear(2, 25),
-    ReLU(),
-    Linear(25, 25),
-    ReLU(), 
-    Linear(25, 25),
-    ReLU(),
-    Linear(25, 1)),
-    MSELoss()
-)
+def init_model(dim_in, dim_out, dim_hidden, n_hidden=1):
+    net = Sequential((
+        Linear(dim_in, dim_hidden),
+        ReLU(),
+        *(Linear(dim_hidden, dim_hidden), ReLU()) * n_hidden,
+        Linear(dim_hidden, dim_out)),
+        MSELoss()
+    )
+    return net
+
+LinNet = init_model(dim_in=2, dim_out=1, dim_hidden=25, n_hidden=4)
 
 # -----------------------------------------------------
 #                      Training 
@@ -54,9 +53,9 @@ LinNet = Sequential((
 
 trainer = Trainer(nb_epochs=nb_epochs)
 
-_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=1, optim='adam')
+_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=1, optim='sgd', lr=0.1)
 
-
+print(LinNet(x_test))
 
 
 
