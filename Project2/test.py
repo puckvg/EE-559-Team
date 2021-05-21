@@ -10,7 +10,7 @@ from trainer import Trainer
 #                     Parameters 
 # -----------------------------------------------------
 
-batch_size = 32
+batch_size = 16
 nb_epochs = 300
 n_samples = 1000
 print_every = 10
