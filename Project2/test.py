@@ -41,16 +41,17 @@ def init_model(dim_in, dim_out, dim_hidden, n_hidden=3):
     net = Sequential((
         Linear(dim_in, dim_hidden),
         ReLU(),
-        *(Linear(dim_hidden, dim_hidden), ReLU()) * (n_hidden),
+        *((Linear(dim_hidden, dim_hidden), ReLU()) * n_hidden),
         Linear(dim_hidden, dim_out)),
         MSELoss()
     )
     return net
 
-LinNet = init_model(dim_in=2, dim_out=1, dim_hidden=25, n_hidden=3)
+LinNet = init_model(dim_in=2, dim_out=1, dim_hidden=25, n_hidden=2)
 
 print("\n### Model structure:")
 LinNet.print()
+
 
 # -----------------------------------------------------
 #                      Training 
@@ -60,6 +61,7 @@ t = Trainer(nb_epochs)
 
 print("\n### Training:")
 _ = t.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=print_every, optim='sgd', lr=0.02)
+
 
 # -----------------------------------------------------
 #                      Evaluation 
