@@ -60,7 +60,7 @@ LinNet.print()
 t = Trainer(nb_epochs)
 
 print("\n### Training:")
-_ = t.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=print_every, optim='sgd', lr=0.02)
+_ = t.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=print_every, optim='sgd', lr=0.03)
 
 
 # -----------------------------------------------------
