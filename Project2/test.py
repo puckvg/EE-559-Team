@@ -10,8 +10,8 @@ from trainer import Trainer
 #                     Parameters 
 # -----------------------------------------------------
 
-batch_size = 32
-nb_epochs = 25
+batch_size = 64
+nb_epochs = 100
 
 
 # -----------------------------------------------------
@@ -54,7 +54,10 @@ LinNet = Sequential((
 
 trainer = Trainer(nb_epochs=nb_epochs)
 
-_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=1, optim='adam')
+_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, lr=0.1, print_every=10, optim='sgd')
+
+acc = (abs(LinNet(x_test).round()) == y_test).sum().item() / 1000
+print(f'test accuracy {acc}')
 
 
 
