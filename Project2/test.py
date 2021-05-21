@@ -11,7 +11,7 @@ from trainer import Trainer
 # -----------------------------------------------------
 
 batch_size = 32
-nb_epochs = 500
+nb_epochs = 300
 n_samples = 1000
 print_every = 10
 
@@ -37,7 +37,7 @@ x_train, x_test, y_train, y_test = gen_data(n_samples)
 #                    Creating model 
 # -----------------------------------------------------
 
-def init_model(dim_in, dim_out, dim_hidden, n_hidden=1):
+def init_model(dim_in, dim_out, dim_hidden, n_hidden=3):
     net = Sequential((
         Linear(dim_in, dim_hidden),
         ReLU(),
@@ -56,11 +56,10 @@ LinNet.print()
 #                      Training 
 # -----------------------------------------------------
 
-trainer = Trainer(nb_epochs)
+t = Trainer(nb_epochs)
 
 print("\n### Training:")
-_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=print_every, optim='sgd', lr=0.02)
-
+_ = t.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=print_every, optim='sgd', lr=0.02)
 
 # -----------------------------------------------------
 #                      Evaluation 
