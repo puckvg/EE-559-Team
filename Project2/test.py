@@ -11,7 +11,9 @@ from trainer import Trainer
 # -----------------------------------------------------
 
 batch_size = 32
-nb_epochs = 25
+nb_epochs = 500
+n_samples = 1000
+print_every = 10
 
 
 # -----------------------------------------------------
@@ -28,7 +30,7 @@ def gen_data(n):
     y_train, y_test = target[:n], target[n:]
     return x_train, x_test, y_train.view(-1, 1), y_test.view(-1, 1)
 
-x_train, x_test, y_train, y_test = gen_data(n = 1000)
+x_train, x_test, y_train, y_test = gen_data(n_samples)
 
 
 # -----------------------------------------------------
@@ -39,24 +41,39 @@ def init_model(dim_in, dim_out, dim_hidden, n_hidden=1):
     net = Sequential((
         Linear(dim_in, dim_hidden),
         ReLU(),
-        *(Linear(dim_hidden, dim_hidden), ReLU()) * n_hidden,
+        *(Linear(dim_hidden, dim_hidden), ReLU()) * (n_hidden),
         Linear(dim_hidden, dim_out)),
         MSELoss()
     )
     return net
 
-LinNet = init_model(dim_in=2, dim_out=1, dim_hidden=25, n_hidden=4)
+LinNet = init_model(dim_in=2, dim_out=1, dim_hidden=25, n_hidden=3)
+
+print("\n### Model structure:")
+LinNet.print()
 
 # -----------------------------------------------------
 #                      Training 
 # -----------------------------------------------------
 
-trainer = Trainer(nb_epochs=nb_epochs)
+trainer = Trainer(nb_epochs)
 
-_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=1, optim='sgd', lr=0.1)
+print("\n### Training:")
+_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, print_every=print_every, optim='sgd', lr=0.02)
 
-print(LinNet(x_test))
 
+# -----------------------------------------------------
+#                      Evaluation 
+# -----------------------------------------------------
+
+y_train_pred = LinNet(x_train).round()
+y_test_pred = LinNet(x_test).round()
+
+train_error = (y_train_pred != y_train).sum() / n_samples * 100
+test_error = (y_test_pred != y_test).sum() / n_samples * 100
+
+print("\nFinal train error: {:6.2f}%".format(train_error))
+print("Final test error: {:6.2f}%".format(test_error))
 
 
 
