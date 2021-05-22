@@ -48,7 +48,7 @@ class Trainer:
 
                 avg_loss_val = round(sum(loss_val)/len(loss_val), 2)
                 val_loss_epochs.append(avg_loss_val)
-                if (e) % print_every == 0:
+                if (e % print_every == 0) or (e+1 == self.nb_epochs):
                     print('# Epoch {:3d}/{:d}:\t loss={:10.4e}\t loss_val={:10.4e}'.format(e+1, self.nb_epochs, avg_loss_train, avg_loss_val))
 
         if verbose:
