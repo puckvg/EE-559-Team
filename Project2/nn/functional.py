@@ -1,87 +1,81 @@
-""" The functional.py contains the concrete implementations of specific functionals. """
+"""functional.py contains the concrete implementations of specific functionals."""
+
 
 def mse(x, y):
-    """ Compute the mean squared error.
+    """Compute the mean squared error.
 
-        Args:
-            x (torch.tensor): Input tensor.
-            y (torch.tensor): Target tensor.
+    Args:
+        x (torch.tensor): Input tensor.
+        y (torch.tensor): Target tensor.
 
-        Returns:
-            ms_error (torch.tensor): Mean squared error.
+    Returns:
+        torch.tensor: Mean squared error.
     """
-    
-    ms_error = (x-y).pow(2).sum(dim=1, keepdim=True).mean() / x.size(1)
 
-    return ms_error
+    return (x - y).pow(2).sum(dim=1, keepdim=True).mean() / x.size(1)
 
 
 def d_mse(x, y):
-    """ Compute the gradient of the mean squared error.
+    """Compute the gradient of the mean squared error.
 
-        Args:
-            x (torch.tensor): Input tensor.
-            y (torch.tensor): Target tensor.
+    Args:
+        x (torch.tensor): Input tensor.
+        y (torch.tensor): Target tensor.
 
-        Returns:
-            d_mse (float): Gradient of mean squared error.
+    Returns:
+        float: Gradient of mean squared error.
     """
-    
-    d_mse = 2*(x - y) / x.size(0) / x.size(1)
-    return d_mse
+
+    return 2 * (x - y) / x.size(0) / x.size(1)
 
 
 def tanh(x):
-    """ Compute tanh(x).
+    """Compute tanh(x).
 
     Args:
         x (torch.tensor): Input tensor
-    
+
     Returns:
-        out (torch.tensor): Output tensor
+        torch.tensor: Output tensor
     """
 
-    out = x.tanh()
-    return out
+    return x.tanh()
 
 
 def d_tanh(x):
-    """ Compute gradient of tanh(x)
+    """Compute gradient of tanh(x)
 
     Args:
         x (torch.tensor): Input tensor
-        
-    Returns:
-        out (torch.tensor): Output tensor
-    """ 
 
-    out = 1 - x.tanh().pow(2)
-    return out
+    Returns:
+        torch.tensor: Output tensor
+    """
+
+    return 1 - x.tanh().pow(2)
 
 
 def relu(x):
-    """ Compute ReLU(x)
+    """Compute ReLU(x)
 
     Args:
         x (torch.tensor): Input tensor
-        
+
     Returns:
-        out (torch.tensor): Output tensor
+        torch.tensor: Output tensor
     """
 
-    out = x.relu()
-    return out
+    return x.relu()
 
 
 def d_relu(x):
-    """ Compute gradient of ReLU(x)
+    """Compute gradient of ReLU(x)
 
     Args:
         x (torch.tensor): Input tensor
-        
+
     Returns:
-        out (torch.tensor): Output tensor
+        torch.tensor: Output tensor
     """
-    
-    out = (x > 0) * 1
-    return out
+
+    return (x > 0) * 1

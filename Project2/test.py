@@ -1,14 +1,13 @@
 from torch import empty
 
-from nn.sequential import Sequential
 from nn.activation import ReLU
 from nn.linear import Linear
 from nn.loss import MSELoss
+from nn.sequential import Sequential
 from trainer import Trainer
 
-
 # -----------------------------------------------------
-#                     Parameters 
+#                     Parameters
 # -----------------------------------------------------
 
 batch_size = 64
@@ -17,35 +16,39 @@ n_samples = 1000
 
 
 # -----------------------------------------------------
-#                    Creating data 
+#                    Creating data
 # -----------------------------------------------------
+
 
 def gen_data(n):
     x = empty((2 * n, 2)).uniform_(0, to=1)
     pi = empty((1)).fill_(0).acos().item() * 2
 
-    target = ((x - empty(1,2).fill_(0.5)).pow(2).sum(dim=1) <= 1/(2*pi)) * 1
+    target = ((x - empty(1, 2).fill_(0.5)).pow(2).sum(dim=1) <= 1 / (2 * pi)) * 1
 
     x_train, x_test = x[:n], x[n:]
     y_train, y_test = target[:n], target[n:]
     return x_train, x_test, y_train.view(-1, 1), y_test.view(-1, 1)
 
-x_train, x_test, y_train, y_test = gen_data(n = n_samples)
+
+x_train, x_test, y_train, y_test = gen_data(n=n_samples)
 
 
 # -----------------------------------------------------
-#                    Creating model 
+#                    Creating model
 # -----------------------------------------------------
 
-LinNet = Sequential((
-    Linear(2, 25),
-    ReLU(),
-    Linear(25, 25),
-    ReLU(), 
-    Linear(25, 25),
-    ReLU(),
-    Linear(25, 1)),
-    MSELoss()
+LinNet = Sequential(
+    (
+        Linear(2, 25),
+        ReLU(),
+        Linear(25, 25),
+        ReLU(),
+        Linear(25, 25),
+        ReLU(),
+        Linear(25, 1),
+    ),
+    MSELoss(),
 )
 
 print("\n### Model structure: ")
@@ -53,17 +56,27 @@ LinNet.print()
 
 
 # -----------------------------------------------------
-#                      Training 
+#                      Training
 # -----------------------------------------------------
 
 trainer = Trainer(nb_epochs=nb_epochs)
 
 print("\n### Training:")
-_ = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=batch_size, lr=0.1, print_every=10, optim='sgd')
+_ = trainer.fit(
+    LinNet,
+    x_train,
+    y_train,
+    x_test,
+    y_test,
+    batch_size=batch_size,
+    lr=0.1,
+    print_every=10,
+    optim="sgd",
+)
 
 
 # -----------------------------------------------------
-#                      Evaluation 
+#                      Evaluation
 # -----------------------------------------------------
 
 train_pred = LinNet(x_train).round()

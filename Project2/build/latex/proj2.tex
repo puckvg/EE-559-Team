@@ -73,7 +73,7 @@
 
 
 \title{Proj2}
-\date{May 20, 2021}
+\date{May 25, 2021}
 \release{1.0}
 \author{Jodok Vieli, Puck van Gerwen, Felix Hoppe}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -757,6 +757,19 @@ Train the model on the specified data and print the training and validation loss
 :param dl\_train: DataLoader. DataLoader containing the training data
 :param dl\_val: DataLoader. DataLoader containting the validation data
 :param verbose: bool. Whether or not to output training information
+\subsubsection*{Example}
+
+Use the trainer to fit a new nn model.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{trainer} \PYG{k+kn}{import} \PYG{n}{Trainer}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{empty}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{nn}\PYG{n+nn}{.}\PYG{n+nn}{sequential} \PYG{k+kn}{import} \PYG{n}{Sequential}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{o}{.}\PYG{o}{.}\PYG{o}{.} \PYG{c+c1}{\PYGZsh{} Read data into x\PYGZus{}train, y\PYGZus{}train, x\PYGZus{}test, y\PYGZus{}test}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{LinNet} \PYG{o}{=} \PYG{n}{LinNet} \PYG{o}{=} \PYG{n}{Sequential}\PYG{p}{(}\PYG{p}{(}\PYG{n}{Linear}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{p}{,} \PYG{n}{MSELoss}\PYG{p}{(}\PYG{p}{)}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{trainer} \PYG{o}{=} \PYG{n}{Trainer}\PYG{p}{(}\PYG{n}{nb\PYGZus{}epochs}\PYG{o}{=}\PYG{l+m+mi}{25}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{loss\PYGZus{}train}\PYG{p}{,} \PYG{n}{loss\PYGZus{}val} \PYG{o}{=} \PYG{n}{trainer}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{n}{LinNet}\PYG{p}{,} \PYG{n}{x\PYGZus{}train}\PYG{p}{,} \PYG{n}{y\PYGZus{}train}\PYG{p}{,} \PYG{n}{x\PYGZus{}test}\PYG{p}{,} \PYG{n}{y\PYGZus{}test}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{l+m+mi}{32}\PYG{p}{,} \PYG{n}{lr}\PYG{o}{=}\PYG{l+m+mf}{0.1}\PYG{p}{,} \PYG{n}{print\PYGZus{}every}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{optim}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{sgd}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\end{sphinxVerbatim}
 
 \end{fulllineitems}
 
@@ -768,6 +781,19 @@ Test the model on the specified data
 :param model: Module. Model to train
 :param dl\_test: DataLoader. DataLoader containting the test data
 :param test\_verbose: bool. Whether the test result should be printed
+\subsubsection*{Example}
+
+Use the trainer to test an existing nn model.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{trainer} \PYG{k+kn}{import} \PYG{n}{Trainer}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{empty}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{o}{.}\PYG{o}{.}\PYG{o}{.} \PYG{c+c1}{\PYGZsh{} Train model LinNet}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{o}{.}\PYG{o}{.}\PYG{o}{.} \PYG{c+c1}{\PYGZsh{} Read data into x\PYGZus{}train, y\PYGZus{}train, x\PYGZus{}test, y\PYGZus{}test}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{trainer} \PYG{o}{=} \PYG{n}{Trainer}\PYG{p}{(}\PYG{n}{nb\PYGZus{}epochs}\PYG{o}{=}\PYG{l+m+mi}{25}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{loss\PYGZus{}test} \PYG{o}{=} \PYG{n}{t}\PYG{o}{.}\PYG{n}{test}\PYG{p}{(}\PYG{n}{LinNet}\PYG{p}{,} \PYG{n}{x\PYGZus{}test}\PYG{p}{,} \PYG{n}{y\PYGZus{}test}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{l+m+mi}{32}\PYG{p}{,} \PYG{n}{test\PYGZus{}verbose}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+\PYG{g+go}{loss\PYGZus{}test=0.17}
+\end{sphinxVerbatim}
 
 \end{fulllineitems}
 
