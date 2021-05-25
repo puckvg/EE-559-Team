@@ -99,7 +99,7 @@ _ = trainer.fit(
     x_test,
     y_test,
     batch_size=batch_size,
-    lr=0.1,
+    lr=0.01,
     print_every=10,
     optim="adam",
 )
