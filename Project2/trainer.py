@@ -3,10 +3,11 @@ import torch
 
 class Trainer:
     def __init__(self, nb_epochs):
-        """Create a trainer by specifying the number of epochs to train
+        """Create a trainer by specifying the number of epochs to train.
+
         Args:
-            nb_epochs: int. Number of epochs to train
-            verbose: bool. Whether or not to output training information.
+            nb_epochs (int): Number of epochs to train
+            verbose (bool): Whether or not to output training information.
 
         """
         self.nb_epochs = nb_epochs
@@ -25,11 +26,18 @@ class Trainer:
         print_every=32,
     ):
         """Train the model on the specified data and print the training and validation loss and accuracy.
+
         Args:
-            model: Module. Model to train
-            dl_train: DataLoader. DataLoader containing the training data
-            dl_val: DataLoader. DataLoader containting the validation data
-            verbose: bool. Whether or not to output training information
+            model (nn.Module): Model to train
+            x_train (torch.tensor): Training data
+            y_train (torch.tensor): Training labels 
+            x_val (torch.tensor): Validation data 
+            y_val (torch.tensor): Validation labels
+            batch_size (int): Batch sizes for training and validation 
+            lr (float): Learning rate for optimization (Default is 0.01)
+            optim (str): Optimizer (options are 'sgd' or 'adam'. Default is 'sgd')
+            verbose (bool): Whether or not to output training information (Default is True)
+            print_every (str): How often to print progress (Default is every 32 steps)
 
         Example:
             Use the trainer to fit a new nn model.
@@ -84,11 +92,14 @@ class Trainer:
             return train_loss_epochs, val_loss_epochs
 
     def test(self, model, x_test, y_test, batch_size=32, test_verbose=True):
-        """Test the model on the specified data
+        """Test the model on the specified data.
+
         Args:
-            model: Module. Model to train
-            dl_test: DataLoader. DataLoader containting the test data
-            test_verbose: bool. Whether the test result should be printed
+            model (nn.Module): Model to train
+            x_test (torch.tensor): Test data 
+            y_test (torch.tensor): Test labels 
+            batch_size (int): Batch size for testing
+            test_verbose (bool): Whether the test result should be printed
 
         Example:
             Use the trainer to test an existing nn model.

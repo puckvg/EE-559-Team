@@ -23,7 +23,6 @@ class Layer(Module):
 
 
 class Linear(Layer):
-    """Class to implement linear layers"""
 
     def __init__(self, dim_in, dim_out):
         """Initialize object of type Linear with random parameters.

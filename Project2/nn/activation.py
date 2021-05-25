@@ -46,7 +46,6 @@ class Activation(Module):
 
 
 class ReLU(Activation):
-    "ReLU activation function class."
 
     def __init__(self):
         super().__init__()
@@ -56,7 +55,7 @@ class ReLU(Activation):
         return "ReLU()"
 
     def forward(self, x):
-        """Compute the ReLU.
+        """Compute ReLU(x)
 
         Args:
             x (torch.tensor): Input tensor.
@@ -78,7 +77,6 @@ class ReLU(Activation):
 
 
 class Tanh(Activation):
-    "Tanh activation function class."
 
     def __init__(self):
         super().__init__()
@@ -88,13 +86,13 @@ class Tanh(Activation):
         return "Tanh()"
 
     def forward(self, x):
-        """Compute the Tanh.
+        """Compute tanh(x)
 
         Args:
             x (torch.tensor): Input tensor.
 
         Returns:
-            torch.tensor: Computed Tanh.
+            torch.tensor: Computed tanh(x).
         """
 
         return f.tanh(x)
