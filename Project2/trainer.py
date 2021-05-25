@@ -6,6 +6,7 @@ class Trainer:
         Args:
             nb_epochs: int. Number of epochs to train
             verbose: bool. Whether or not to output training information.
+
         """
         self.nb_epochs = nb_epochs
     
@@ -16,6 +17,17 @@ class Trainer:
             dl_train: DataLoader. DataLoader containing the training data
             dl_val: DataLoader. DataLoader containting the validation data
             verbose: bool. Whether or not to output training information
+
+        Example:
+            Use the trainer to fit a new nn model.
+
+            >>> from trainer import Trainer
+            >>> from torch import empty
+            >>> from nn.sequential import Sequential
+            >>> ... # Read data into x_train, y_train, x_test, y_test
+            >>> LinNet = LinNet = Sequential((Linear(2, 1), MSELoss())
+            >>> trainer = Trainer(nb_epochs=25)
+            >>> loss_train, loss_val = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=32, lr=0.1, print_every=10, optim='sgd')
         """
 
         train_loss_epochs = []
@@ -60,6 +72,18 @@ class Trainer:
             model: Module. Model to train
             dl_test: DataLoader. DataLoader containting the test data
             test_verbose: bool. Whether the test result should be printed
+
+        Example:
+            Use the trainer to test an existing nn model.
+
+            >>> from trainer import Trainer
+            >>> from torch import empty
+            >>> ... # Train model LinNet
+            >>> ... # Read data into x_train, y_train, x_test, y_test
+            >>> trainer = Trainer(nb_epochs=25)
+            >>> loss_test = t.test(LinNet, x_test, y_test, batch_size=32, test_verbose=True)
+            loss_test=0.17
+
         """
 
         loss_test = []

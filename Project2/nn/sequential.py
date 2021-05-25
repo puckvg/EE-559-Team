@@ -8,6 +8,28 @@ class Sequential(Module):
         Args:
             modules (list(Module)): List of modules.
             loss_fn (str): loss function.
+
+        Example:
+            >>> LinNet = Sequential((
+                    Linear(2, 25),
+                    ReLU(),
+                    Linear(25, 25),
+                    ReLU(), 
+                    Linear(25, 25),
+                    ReLU(),
+                    Linear(25, 1)),
+                    MSELoss()
+                )
+            >>> print(LinNet)
+            Sequential(
+                (0): Linear(in_features=2, out_features=25, bias=True)
+                (1): ReLU()
+                (2): Linear(in_features=25, out_features=25, bias=True)
+                (3): ReLU()
+                (4): Linear(in_features=25, out_features=25, bias=True)
+                (5): ReLU()
+                (6): Linear(in_features=25, out_features=1, bias=True)
+            )
         """ 
 
         super().__init__()
