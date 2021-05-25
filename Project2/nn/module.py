@@ -1,4 +1,6 @@
 class Module(object):
+    """Base Module from which nearly all nn modules inherit."""
+
     def __init__(self):
         """Initialize object of type Module with empty cache.
         The cache will be used to store information for subsequent passes such as the local gradient."""

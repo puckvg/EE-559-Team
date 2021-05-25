@@ -3,7 +3,7 @@ from nn.module import Module
 
 
 class Activation(Module):
-    """Activation class. Inherits from Module."""
+    """Class to compute activation functions."""
 
     def __init__(self):
         super().__init__()

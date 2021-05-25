@@ -4,7 +4,7 @@ from nn.module import Module
 
 
 class Layer(Module):
-    """Layer implements layers that can be used in a network architecture. Inherits from Module."""
+    """Layer implements layers that can be used in a network architecture."""
 
     def __init__(self):
         super().__init__()
@@ -23,7 +23,7 @@ class Layer(Module):
 
 
 class Linear(Layer):
-    """Linear layer. Inherits from Layer."""
+    """Class to implement linear layers"""
 
     def __init__(self, dim_in, dim_out):
         """Initialize object of type Linear with random parameters.

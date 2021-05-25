@@ -3,7 +3,7 @@ from nn.module import Module
 
 
 class Sequential(Module):
-    """Sequential allows multiple layers to be combined in a network architecture. Inherits from Module."""
+    """Sequential allows multiple layers to be combined in a network architecture."""
 
     def __init__(self, modules, loss_fn):
         """Create a sequential network.
