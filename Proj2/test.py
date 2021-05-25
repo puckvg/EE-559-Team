@@ -42,7 +42,20 @@ x_train, x_test, y_train, y_test = gen_data(n=n_samples)
 #                    Creating model
 # -----------------------------------------------------
 
-LinNet = Sequential(
+LinNet_SGD = Sequential(
+    (
+        Linear(2, 25),
+        ReLU(),
+        Linear(25, 25),
+        ReLU(),
+        Linear(25, 25),
+        ReLU(),
+        Linear(25, 1),
+    ),
+    MSELoss(),
+)
+
+LinNet_Adam = Sequential(
     (
         Linear(2, 25),
         ReLU(),
@@ -56,7 +69,7 @@ LinNet = Sequential(
 )
 
 print("\n### Model structure: ")
-LinNet.print()
+LinNet_SGD.print()
 
 
 # -----------------------------------------------------
@@ -65,9 +78,9 @@ LinNet.print()
 
 trainer = Trainer(nb_epochs=nb_epochs)
 
-print("\n### Training:")
+print("\n### Training using SGD:")
 _ = trainer.fit(
-    LinNet,
+    LinNet_SGD,
     x_train,
     y_train,
     x_test,
@@ -78,17 +91,43 @@ _ = trainer.fit(
     optim="sgd",
 )
 
+print("\n### Training using Adam:")
+_ = trainer.fit(
+    LinNet_Adam,
+    x_train,
+    y_train,
+    x_test,
+    y_test,
+    batch_size=batch_size,
+    lr=0.1,
+    print_every=10,
+    optim="adam",
+)
+
 
 # -----------------------------------------------------
 #                      Evaluation
 # -----------------------------------------------------
 
-train_pred = LinNet(x_train).round()
-test_pred = LinNet(x_test).round()
+# SGD
+train_pred = LinNet_SGD(x_train).round()
+test_pred = LinNet_SGD(x_test).round()
 
 train_error_rate = (train_pred != y_train).sum().item() / n_samples
 test_error_rate = (test_pred != y_test).sum().item() / n_samples
 
 print("\n### Evaluation")
+print("# Results using SGD:")
+print("Final train error: {:5.2f}%".format(train_error_rate * 100))
+print("Final test error: {:6.2f}%".format(test_error_rate * 100))
+
+# Adam
+train_pred = LinNet_Adam(x_train).round()
+test_pred = LinNet_Adam(x_test).round()
+
+train_error_rate = (train_pred != y_train).sum().item() / n_samples
+test_error_rate = (test_pred != y_test).sum().item() / n_samples
+
+print("\n# Results using Adam:")
 print("Final train error: {:5.2f}%".format(train_error_rate * 100))
 print("Final test error: {:6.2f}%".format(test_error_rate * 100))
