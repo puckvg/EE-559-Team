@@ -1,5 +1,5 @@
 import torch
-
+import random
 
 class Trainer:
     def __init__(self, nb_epochs):
@@ -56,6 +56,13 @@ class Trainer:
 
         for e in range(self.nb_epochs):
             loss_train = []
+
+            # Shuffle data between epochs
+            indices = list(range(len(y_train)))
+            random.shuffle(indices)
+            x_train = x_train[indices]
+            y_train = y_train[indices]
+
             for batch in range(0, len(x_train), batch_size):
                 x_batch = x_train[batch : batch + batch_size]
                 y_batch = y_train[batch : batch + batch_size]
