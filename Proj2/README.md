@@ -1,4 +1,4 @@
-# Proj2 
+# Project 2 
 Proj2 is a minimal tensor library for deep learning using CPUs. The current version can:
 - Build networks combining fully connected layers, Tanh and RELU
 - Run forward and backward passes 
