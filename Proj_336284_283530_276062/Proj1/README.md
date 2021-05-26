@@ -8,7 +8,7 @@ and prints the output to the screen.
 
 `test.py` can be run with arguments as follows: 
 ```
-test.py --train --nb_epochs --n_cv --save_models
+python test.py --train --nb_epochs --n_cv --save_models
 ```
 where the defaults are `train=False`, `nb_epochs=25`, `n_cv=10`, `save_models=False`. 
 
