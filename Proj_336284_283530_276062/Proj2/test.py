@@ -1,6 +1,7 @@
+import argparse
+
 import torch
 from torch import empty
-import argparse
 
 from nn.activation import ReLU
 from nn.linear import Linear
@@ -107,10 +108,9 @@ for i in range(args.n_folds):
         MSELoss(),
     )
 
-    if i==0:
+    if i == 0:
         print("\n### Model structure: ")
         LinNet_SGD.print()
-
 
     # -----------------------------------------------------
     #                      Training
@@ -120,7 +120,8 @@ for i in range(args.n_folds):
 
     verbose = i == 0
 
-    if i==0: print("\n### Training using SGD:")
+    if i == 0:
+        print("\n### Training using SGD:")
     _ = trainer.fit(
         LinNet_SGD,
         x_train,
@@ -134,7 +135,8 @@ for i in range(args.n_folds):
         optim="sgd",
     )
 
-    if i==0: print("\n### Training using Adam:")
+    if i == 0:
+        print("\n### Training using Adam:")
     _ = trainer.fit(
         LinNet_Adam,
         x_train,
@@ -147,7 +149,6 @@ for i in range(args.n_folds):
         print_every=10,
         optim="adam",
     )
-
 
     # -----------------------------------------------------
     #                      Evaluation
@@ -169,7 +170,7 @@ for i in range(args.n_folds):
 
     train_error_rate = (train_pred != y_train).sum().item() / args.n_samples
     test_error_rate = (test_pred != y_test).sum().item() / args.n_samples
-    
+
     train_error_rate_Adam.append(train_error_rate)
     test_error_rate_Adam.append(test_error_rate)
 
@@ -177,14 +178,33 @@ for i in range(args.n_folds):
         print("\n### Evaluation")
         print("          |            SGD           |           Adam           |")
         print("Iteration | Train error | Test error | Train error | Test error |")
-        
-    print("{:9d} | {:10.2f}% |  {:8.2f}% |  {:9.2f}% |  {:8.2f}% |".format(i+1, train_error_rate_SGD[-1] * 100, test_error_rate_SGD[-1] * 100, train_error_rate_Adam[-1] * 100, test_error_rate_Adam[-1] * 100))
-    
+
+    print(
+        "{:9d} | {:10.2f}% |  {:8.2f}% |  {:9.2f}% |  {:8.2f}% |".format(
+            i + 1,
+            train_error_rate_SGD[-1] * 100,
+            test_error_rate_SGD[-1] * 100,
+            train_error_rate_Adam[-1] * 100,
+            test_error_rate_Adam[-1] * 100,
+        )
+    )
+
 if args.n_folds != 1:
     train_av_SGD = sum(train_error_rate_SGD) / args.n_folds
     test_av_SGD = sum(test_error_rate_SGD) / args.n_folds
     train_av_Adam = sum(train_error_rate_Adam) / args.n_folds
     test_av_Adam = sum(test_error_rate_Adam) / args.n_folds
-    
-    print("----------|--------- Average result over {:2d} iterations ---------|".format(args.n_folds))
-    print("          | {:10.2f}% |  {:8.2f}% |  {:9.2f}% |  {:8.2f}% |".format(train_av_SGD * 100, test_av_SGD * 100, train_av_Adam * 100, test_av_Adam * 100))
+
+    print(
+        "----------|--------- Average result over {:2d} iterations ---------|".format(
+            args.n_folds
+        )
+    )
+    print(
+        "          | {:10.2f}% |  {:8.2f}% |  {:9.2f}% |  {:8.2f}% |".format(
+            train_av_SGD * 100,
+            test_av_SGD * 100,
+            train_av_Adam * 100,
+            test_av_Adam * 100,
+        )
+    )

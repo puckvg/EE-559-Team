@@ -46,7 +46,6 @@ class Activation(Module):
 
 
 class ReLU(Activation):
-
     def __init__(self):
         super().__init__()
 
@@ -77,7 +76,6 @@ class ReLU(Activation):
 
 
 class Tanh(Activation):
-
     def __init__(self):
         super().__init__()
 

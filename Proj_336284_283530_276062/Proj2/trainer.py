@@ -1,5 +1,7 @@
-import torch
 import random
+
+import torch
+
 
 class Trainer:
     def __init__(self, nb_epochs):
@@ -30,10 +32,10 @@ class Trainer:
         Args:
             model (nn.Module): Model to train
             x_train (torch.tensor): Training data
-            y_train (torch.tensor): Training labels 
-            x_val (torch.tensor): Validation data 
+            y_train (torch.tensor): Training labels
+            x_val (torch.tensor): Validation data
             y_val (torch.tensor): Validation labels
-            batch_size (int): Batch sizes for training and validation 
+            batch_size (int): Batch sizes for training and validation
             lr (float): Learning rate for optimization (Default is 0.01)
             optim (str): Optimizer (options are 'sgd' or 'adam'. Default is 'sgd')
             verbose (bool): Whether or not to output training information (Default is True)
@@ -103,8 +105,8 @@ class Trainer:
 
         Args:
             model (nn.Module): Model to train
-            x_test (torch.tensor): Test data 
-            y_test (torch.tensor): Test labels 
+            x_test (torch.tensor): Test data
+            y_test (torch.tensor): Test labels
             batch_size (int): Batch size for testing
             test_verbose (bool): Whether the test result should be printed
 
