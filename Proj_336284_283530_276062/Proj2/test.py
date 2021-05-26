@@ -1,5 +1,6 @@
 import torch
 from torch import empty
+import argparse
 
 from nn.activation import ReLU
 from nn.linear import Linear
@@ -14,9 +15,44 @@ torch.set_grad_enabled(False)
 #                     Parameters
 # -----------------------------------------------------
 
-batch_size = 64
-nb_epochs = 100
-n_samples = 1000
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawTextHelpFormatter,
+    description="""Test script for Project 2""",
+)
+
+parser.add_argument(
+    "--batch_size",
+    action="store",
+    default=64,
+    type=int,
+    help="""Batch size for training and testing. (default=64)""",
+)
+
+parser.add_argument(
+    "--nb_epochs",
+    action="store",
+    default=100,
+    type=int,
+    help="""Number of training epochs. (default=100)""",
+)
+
+parser.add_argument(
+    "--n_samples",
+    action="store",
+    default=1000,
+    type=int,
+    help="""Number of samples in training and test set. (default=1000)""",
+)
+
+parser.add_argument(
+    "--n_folds",
+    action="store",
+    default=1,
+    type=int,
+    help="""Number of random initializations. (default=1)""",
+)
+
+args = parser.parse_args()
 
 
 # -----------------------------------------------------
@@ -35,99 +71,120 @@ def gen_data(n):
     return x_train, x_test, y_train.view(-1, 1), y_test.view(-1, 1)
 
 
-x_train, x_test, y_train, y_test = gen_data(n=n_samples)
+train_error_rate_SGD, test_error_rate_SGD = [], []
+train_error_rate_Adam, test_error_rate_Adam = [], []
+
+for i in range(args.n_folds):
+    x_train, x_test, y_train, y_test = gen_data(n=args.n_samples)
+
+    # -----------------------------------------------------
+    #                    Creating model
+    # -----------------------------------------------------
+
+    LinNet_SGD = Sequential(
+        (
+            Linear(2, 25),
+            ReLU(),
+            Linear(25, 25),
+            ReLU(),
+            Linear(25, 25),
+            ReLU(),
+            Linear(25, 1),
+        ),
+        MSELoss(),
+    )
+
+    LinNet_Adam = Sequential(
+        (
+            Linear(2, 25),
+            ReLU(),
+            Linear(25, 25),
+            ReLU(),
+            Linear(25, 25),
+            ReLU(),
+            Linear(25, 1),
+        ),
+        MSELoss(),
+    )
+
+    if i==0:
+        print("\n### Model structure: ")
+        LinNet_SGD.print()
 
 
-# -----------------------------------------------------
-#                    Creating model
-# -----------------------------------------------------
+    # -----------------------------------------------------
+    #                      Training
+    # -----------------------------------------------------
 
-LinNet_SGD = Sequential(
-    (
-        Linear(2, 25),
-        ReLU(),
-        Linear(25, 25),
-        ReLU(),
-        Linear(25, 25),
-        ReLU(),
-        Linear(25, 1),
-    ),
-    MSELoss(),
-)
+    trainer = Trainer(nb_epochs=args.nb_epochs)
 
-LinNet_Adam = Sequential(
-    (
-        Linear(2, 25),
-        ReLU(),
-        Linear(25, 25),
-        ReLU(),
-        Linear(25, 25),
-        ReLU(),
-        Linear(25, 1),
-    ),
-    MSELoss(),
-)
+    verbose = i == 0
 
-print("\n### Model structure: ")
-LinNet_SGD.print()
+    if i==0: print("\n### Training using SGD:")
+    _ = trainer.fit(
+        LinNet_SGD,
+        x_train,
+        y_train,
+        x_test,
+        y_test,
+        batch_size=args.batch_size,
+        lr=0.1,
+        verbose=verbose,
+        print_every=10,
+        optim="sgd",
+    )
 
-
-# -----------------------------------------------------
-#                      Training
-# -----------------------------------------------------
-
-trainer = Trainer(nb_epochs=nb_epochs)
-
-print("\n### Training using SGD:")
-_ = trainer.fit(
-    LinNet_SGD,
-    x_train,
-    y_train,
-    x_test,
-    y_test,
-    batch_size=batch_size,
-    lr=0.1,
-    print_every=10,
-    optim="sgd",
-)
-
-print("\n### Training using Adam:")
-_ = trainer.fit(
-    LinNet_Adam,
-    x_train,
-    y_train,
-    x_test,
-    y_test,
-    batch_size=batch_size,
-    lr=0.01,
-    print_every=10,
-    optim="adam",
-)
+    if i==0: print("\n### Training using Adam:")
+    _ = trainer.fit(
+        LinNet_Adam,
+        x_train,
+        y_train,
+        x_test,
+        y_test,
+        batch_size=args.batch_size,
+        lr=0.01,
+        verbose=verbose,
+        print_every=10,
+        optim="adam",
+    )
 
 
-# -----------------------------------------------------
-#                      Evaluation
-# -----------------------------------------------------
+    # -----------------------------------------------------
+    #                      Evaluation
+    # -----------------------------------------------------
 
-# SGD
-train_pred = LinNet_SGD(x_train).round()
-test_pred = LinNet_SGD(x_test).round()
+    # SGD
+    train_pred = LinNet_SGD(x_train).round()
+    test_pred = LinNet_SGD(x_test).round()
 
-train_error_rate = (train_pred != y_train).sum().item() / n_samples
-test_error_rate = (test_pred != y_test).sum().item() / n_samples
+    train_error_rate = (train_pred != y_train).sum().item() / args.n_samples
+    test_error_rate = (test_pred != y_test).sum().item() / args.n_samples
 
-print("\n### Evaluation")
-print("# Results using SGD:")
-print("Final train error: {:5.2f}%".format(train_error_rate * 100))
-print("Final test error: {:6.2f}%".format(test_error_rate * 100))
+    train_error_rate_SGD.append(train_error_rate)
+    test_error_rate_SGD.append(test_error_rate)
 
-# Adam
-train_pred = LinNet_Adam(x_train).round()
-test_pred = LinNet_Adam(x_test).round()
+    # Adam
+    train_pred = LinNet_Adam(x_train).round()
+    test_pred = LinNet_Adam(x_test).round()
 
-train_error_rate = (train_pred != y_train).sum().item() / n_samples
-test_error_rate = (test_pred != y_test).sum().item() / n_samples
+    train_error_rate = (train_pred != y_train).sum().item() / args.n_samples
+    test_error_rate = (test_pred != y_test).sum().item() / args.n_samples
+    
+    train_error_rate_Adam.append(train_error_rate)
+    test_error_rate_Adam.append(test_error_rate)
 
-print("\n# Results using Adam:")
-print("Final train error: {:5.2f}%".format(train_error_rate * 100))
-print("Final test error: {:6.2f}%".format(test_error_rate * 100))
+    if i == 0:
+        print("\n### Evaluation")
+        print("          |            SGD           |           Adam           |")
+        print("Iteration | Train error | Test error | Train error | Test error |")
+        
+    print("{:9d} | {:10.2f}% |  {:8.2f}% |  {:9.2f}% |  {:8.2f}% |".format(i+1, train_error_rate_SGD[-1] * 100, test_error_rate_SGD[-1] * 100, train_error_rate_Adam[-1] * 100, test_error_rate_Adam[-1] * 100))
+    
+if args.n_folds != 1:
+    train_av_SGD = sum(train_error_rate_SGD) / args.n_folds
+    test_av_SGD = sum(test_error_rate_SGD) / args.n_folds
+    train_av_Adam = sum(train_error_rate_Adam) / args.n_folds
+    test_av_Adam = sum(test_error_rate_Adam) / args.n_folds
+    
+    print("----------|--------- Average result over {:2d} iterations ---------|".format(args.n_folds))
+    print("          | {:10.2f}% |  {:8.2f}% |  {:9.2f}% |  {:8.2f}% |".format(train_av_SGD * 100, test_av_SGD * 100, train_av_Adam * 100, test_av_Adam * 100))
