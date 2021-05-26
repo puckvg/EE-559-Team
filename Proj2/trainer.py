@@ -46,7 +46,7 @@ class Trainer:
             >>> from torch import empty
             >>> from nn.sequential import Sequential
             >>> ... # Read data into x_train, y_train, x_test, y_test
-            >>> LinNet = LinNet = Sequential((Linear(2, 1), MSELoss())
+            >>> LinNet = Sequential((Linear(2, 1), MSELoss())
             >>> trainer = Trainer(nb_epochs=25)
             >>> loss_train, loss_val = trainer.fit(LinNet, x_train, y_train, x_test, y_test, batch_size=32, lr=0.1, print_every=10, optim='sgd')
         """
