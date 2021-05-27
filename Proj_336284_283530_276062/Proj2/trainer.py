@@ -118,7 +118,7 @@ class Trainer:
             >>> ... # Train model LinNet
             >>> ... # Read data into x_train, y_train, x_test, y_test
             >>> trainer = Trainer(nb_epochs=25)
-            >>> loss_test = t.test(LinNet, x_test, y_test, batch_size=32, test_verbose=True)
+            >>> loss_test = trainer.test(LinNet, x_test, y_test, batch_size=32, test_verbose=True)
             loss_test=0.17
 
         """
